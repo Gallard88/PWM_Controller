@@ -1,3 +1,13 @@
+/** @package 
+
+	eeprom.c
+	
+	Copyright(c) Toshiba 2000
+	
+	Author: TOM BURNS
+	Created: TB  26/01/2013 12:16:14 PM
+	Last Change: TB  26/01/2013 12:16:14 PM
+*/
 //	***************************************************************************
 #include <iom2560v.h>
 
@@ -19,11 +29,35 @@ char EEpromRead_1 (unsigned int addr)
 }
 
 /****************************************************************************/
+char EEpromRead_1_default (unsigned int addr, char def)
+{
+	int value;
+
+	value = EEpromRead_1(addr);
+	if ( value == 0xFF )
+		return def;
+	return value;
+}
+
+/****************************************************************************/
 int EEpromRead_2 (unsigned int  addr)
 {	// read specified word from internal EEPROM - little-endian
 
 	return (EEpromRead_1(addr) | ((int)EEpromRead_1(addr+1) << 8) );
 }
+
+/****************************************************************************/
+int EEpromRead_2_default (unsigned int  addr, int def)
+{	// read specified word from internal EEPROM - little-endian
+	int value;
+
+	value = (EEpromRead_1(addr) | ((int)EEpromRead_1(addr+1) << 8) );
+	if ( value == 0xFFFF )
+		return def;
+
+	return value;
+}
+
 
 /****************************************************************************/
 void EEpromRead_n (unsigned int  addr, char *buf, int count)
