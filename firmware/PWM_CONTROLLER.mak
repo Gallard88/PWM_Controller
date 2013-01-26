@@ -19,7 +19,7 @@ eeprom.o:	eeprom.c
 pwm.o: C:\iccv7avr\include\iom2560v.h C:\iccv7avr\include\_iom640to2561v.h .\pwm.h
 pwm.o:	pwm.c
 	$(CC) -c $(CFLAGS) pwm.c
-PWM_Cmds.o: C:\iccv7avr\include\stdlib.h C:\iccv7avr\include\_const.h C:\iccv7avr\include\limits.h C:\iccv7avr\include\stdio.h C:\iccv7avr\include\stdarg.h C:\iccv7avr\include\string.h C:\iccv7avr\include\ctype.h .\CmdProcessor.h .\PWM_Cmds.h .\pwm.h .\uart1.h .\uart3.h
+PWM_Cmds.o: C:\iccv7avr\include\stdlib.h C:\iccv7avr\include\_const.h C:\iccv7avr\include\limits.h C:\iccv7avr\include\stdio.h C:\iccv7avr\include\stdarg.h C:\iccv7avr\include\string.h C:\iccv7avr\include\ctype.h .\CmdProcessor.h .\PWM_Cmds.h .\pwm.h .\uart1.h .\uart3.h .\eeprom.h .\conf_eeprom.h
 PWM_Cmds.o:	PWM_Cmds.c
 	$(CC) -c $(CFLAGS) PWM_Cmds.c
 timer.o: .\timer.h C:\iccv7avr\include\iom2560v.h C:\iccv7avr\include\_iom640to2561v.h
