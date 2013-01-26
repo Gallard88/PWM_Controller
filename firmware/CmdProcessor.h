@@ -12,7 +12,7 @@ char *Cmd_SkipSpace(char *ptr);
 
 char *Cmd_SkipChars(char *ptr);
 
-void Cmd_Lookup(const struct cmdtable *tbl, char *line);
+int Cmd_Lookup(const struct cmdtable *tbl, char *line);
 
 //*****************************************************************************
 //*****************************************************************************

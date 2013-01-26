@@ -23,7 +23,7 @@ char *Cmd_SkipChars(char *ptr)
 }
 
 //*****************************************************************************
-void Cmd_Lookup(const struct cmdtable *tbl, char *line)
+int Cmd_Lookup(const struct cmdtable *tbl, char *line)
 {
 	char *cmd, *arg;
 
@@ -48,12 +48,12 @@ void Cmd_Lookup(const struct cmdtable *tbl, char *line)
 		{
 			if ( tbl->func )
 			{
-				(*tbl->func)(arg);    // execute command
-				break;
+				return (*tbl->func)(arg);    // execute command
 			}
 		}
 		tbl++;
 	}
+	return -1;
 }
 
 //*****************************************************************************

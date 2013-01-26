@@ -77,7 +77,7 @@ ADC_Avg_Filter Curr_AVG =
 // *****************************************************************************
 void Run_USB_Serial(void)
 {// here every 10ms
-	int rv;
+	int rv, cmd;
 	int size;
 
 	do
@@ -93,7 +93,11 @@ void Run_USB_Serial(void)
 				U1_TxPutsf("Cmd >");
 				U1_TxPuts(USB_LineBuf);
 				U1_TxPutsf("<\r\n");
-				Cmd_Lookup( USB_CmdTable, USB_LineBuf);
+				cmd = Cmd_Lookup( USB_CmdTable, USB_LineBuf);
+				if ( cmd < 0 )
+					U1_TxPutsf("?\r\n");
+				else
+					U1_TxPutsf("OK\r\n");
   				USB_LineBuf[0] = 0;
 			}
 		}

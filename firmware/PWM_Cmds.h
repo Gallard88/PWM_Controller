@@ -7,6 +7,8 @@ void Send_Temp(void );
 void Send_Current( void );
 
 //*****************************************************************************
+extern int Ext_Current;
+
 extern const struct cmdtable USB_CmdTable[];
 extern const struct cmdtable Ext_CmdTable[];
 

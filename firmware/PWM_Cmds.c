@@ -138,10 +138,31 @@ int Update_Rate(char *buf)
 }
 
 //*****************************************************************************
+int Ext_Current;
+//*****************************************************************************
 int Expansion_Current(char *buf)
 {
-	// to do.
-	return 0;
+/*
+  int value;
+  
+  if ( buf == NULL )
+    return -1;
+  buf = Cmd_SkipSpace(buf);
+  value = atoi(buf);
+  while ( *buf )
+  {
+    if ( *buf == '.')
+	{
+	  buf++;
+	  break; 
+	}
+    buf++;
+  }
+
+  value = (value * 10) + atoi(buf);
+  Ext_Current = value;
+*/  
+  return 0;
 }
 
 //*****************************************************************************
