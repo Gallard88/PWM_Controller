@@ -12,7 +12,7 @@
  *	Treat 'const' as '__flash' = true.
  *	Accept Extensions (C++ comments, binary constants) = true.
  *
-	Last change: TB 26/01/2013 12:46:04 PM
+	Last change: TB 26/01/2013 12:50:07 PM
  */
 // *****************************************************************************
 //#include ".h"
@@ -55,40 +55,25 @@ ADC_Avg_Filter Temp_AVG =
 	Temp_Avg_Buffer, // *buffer
 	0, // buf_ofs
 	TEMP_AVG_BUFFER_SIZE, // buf_size
-	1, // offset
+	0, // offset
 	0, // avg
 };
 
-/*
-
 #define CURR_AVG_BUFFER_SIZE	4
 int Current_Avg_Buffer[CURR_AVG_BUFFER_SIZE];
-
-ADC_Avg_Filter Temp_AVG =
-{
-	0,	// ch
-	2, 	// scale_div
-	2, 	// scale_mult
-	&Temp_Avg_Buffer, // *buffer
-	0, // buf_ofs
-	TEMP_AVG_BUFFER_SIZE, // buf_size
-	0, // offset
-	0, // average
-};
 
 ADC_Avg_Filter Curr_AVG =
 {
 	1,	// ch
 	2, 	// scale_div
 	2, 	// scale_mult
-	&Current_Avg_Buffer, // *buffer
+	Current_Avg_Buffer, // *buffer
 	0, // buf_ofs
 	CURR_AVG_BUFFER_SIZE, // buf_size
 	0, // offset
 	0, // average
 };
 
-*/
 // *****************************************************************************
 void Run_USB_Serial(void)
 {// here every 10ms
@@ -200,6 +185,7 @@ int main( void )
 	// Initialise Sub-modules.
 
 	// Current Sensor.  - To do
+	ADC_LoadAvgFilter( &Curr_AVG);
 	// Temp Sensor.
 	ADC_LoadAvgFilter( &Temp_AVG);
 	// RTC Clock  - To do
@@ -233,7 +219,9 @@ int main( void )
 			if (( time > 0 ) && ( Current_Update_Timer > time ))
 			{
 				Current_Update_Timer = 0;
-				csprintf(cmd,"current: %d\r\n", 0);
+				value = 	ADC_RunAvgFilter( &Curr_AVG);
+
+				csprintf(cmd,"current: %d\r\n", value);
 				U1_TxPuts(cmd);
 			}
 			Current_Update_Timer++;
