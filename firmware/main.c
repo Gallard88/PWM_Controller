@@ -22,7 +22,9 @@
 //#include "conf_eeprom.h"
 //#include "eeprom.h"
 
+#include "CmdProcessor.h"
 #include "pwm.h"
+#include "PWM_Cmds.h"
 #include "timer.h"
 #include "uart1.h"
 #include "uart3.h"
@@ -86,12 +88,16 @@ void Run_USB_Serial(void)
 		rv = U1_RxGetLine( USB_LineBuf + size,  LINEBUF_SIZE - size );
 		if ( rv < 0 )
 			USB_LineBuf[0] = 0;
-		else
+		else if ( rv > 0 )
 		{
-			U1_TxPutsf("Cmd >");
-			U1_TxPuts(USB_LineBuf);
-			U1_TxPutsf("<\r\n");
-//			Cmd_Lookup( USB_CmdTable, USB_LineBuf);
+		    if ( strlen(USB_LineBuf) )
+			{
+				U1_TxPutsf("Cmd >");
+				U1_TxPuts(USB_LineBuf);
+				U1_TxPutsf("<\r\n");
+				Cmd_Lookup( USB_CmdTable, USB_LineBuf);
+  				USB_LineBuf[0] = 0;
+			}
 		}
 	}
 	while ( rv != 0 );
@@ -193,7 +199,7 @@ int main( void )
 		if ( Timer_Is10ms() )
 		{
 			// USB command handler
-//			Run_USB_Serial();
+			Run_USB_Serial();
 
 			// Expansion command handler
 //			Run_External_Serial();
@@ -223,10 +229,8 @@ int main( void )
 				Temperature_Update_Timer++;
 */
 		}
-		// clear watchdog.
 		if ( Timer_Is1s() )
 		{
-		  U1_TxPutsf("Tick Tock\r\n");
 		  PORTG ^= 0x1;
 		}
 	}
