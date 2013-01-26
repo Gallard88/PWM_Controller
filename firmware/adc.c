@@ -1,4 +1,13 @@
+/** @package 
 
+	adc.c
+	
+	Copyright(c) Toshiba 2000
+	
+	Author: TOM BURNS
+	Created: TB  26/01/2013 12:42:08 PM
+	Last change: TB 26/01/2013 12:46:37 PM
+*/
 
 
 //*****************************************************************************
@@ -28,10 +37,20 @@ int ADC_Read(int ch)
 
 //*****************************************************************************
 //*****************************************************************************
+void ADC_LoadAvgFilter(ADC_Avg_Filter *data)
+{
+	int i;
+
+	for ( i =0; i < data->buf_size; i++ )
+	{
+		ADC_RunAvgFilter(data);
+	}
+}
+
+//*****************************************************************************
 int ADC_RunAvgFilter(ADC_Avg_Filter *data)
 {
-	int value, *ptr;
-	int i;
+	int value, i, *ptr;
 
 	value = ( ADC_Read(data->ch) * data->scale_mult ) >> data->scale_div;
 

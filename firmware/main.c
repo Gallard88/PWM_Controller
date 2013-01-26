@@ -12,7 +12,7 @@
  *	Treat 'const' as '__flash' = true.
  *	Accept Extensions (C++ comments, binary constants) = true.
  *
-	Last change: TB 26/01/2013 12:26:11 PM
+	Last change: TB 26/01/2013 12:46:04 PM
  */
 // *****************************************************************************
 //#include ".h"
@@ -21,6 +21,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "Adc.h"
 #include "eeprom.h"
 #include "conf_eeprom.h"
 #include "CmdProcessor.h"
@@ -44,10 +45,21 @@ unsigned int Temperature_Update_Timer;
 // adc ch 0 = temp
 // adc ch 1 = current
 
-
-/*
 #define TEMP_AVG_BUFFER_SIZE	8
 int Temp_Avg_Buffer[TEMP_AVG_BUFFER_SIZE];
+ADC_Avg_Filter Temp_AVG =
+{
+	0,	// ch
+	2, 	// scale_div
+	2, 	// scale_mult
+	Temp_Avg_Buffer, // *buffer
+	0, // buf_ofs
+	TEMP_AVG_BUFFER_SIZE, // buf_size
+	1, // offset
+	0, // avg
+};
+
+/*
 
 #define CURR_AVG_BUFFER_SIZE	4
 int Current_Avg_Buffer[CURR_AVG_BUFFER_SIZE];
@@ -142,6 +154,11 @@ void IO_Init(void)
 	
  				  //   76543210
 			   	  // 0b0000OI00
+ 	DDRF = 0x00;
+	PORTF = 0xFC;
+
+ 				  //   76543210
+			   	  // 0b0000OI00
  	DDRG = 0x03;		  
 	PORTG = 0x3;
 
@@ -156,6 +173,7 @@ int main( void )
 {
 	int time;
 	char cmd[50];
+	int value;
 
 	//-----------------------------------------------
 	// initialise port pins.
@@ -182,7 +200,8 @@ int main( void )
 	// Initialise Sub-modules.
 
 	// Current Sensor.  - To do
-	// Temp Sensor.  - To do
+	// Temp Sensor.
+	ADC_LoadAvgFilter( &Temp_AVG);
 	// RTC Clock  - To do
 
 	//-----------------------------------------------
@@ -227,7 +246,9 @@ int main( void )
 			if (( time > 0 ) && ( Temperature_Update_Timer > time ))
 			{
 				Temperature_Update_Timer = 0;
-				csprintf(cmd,"temp: %d\r\n", 0);
+
+				value = ADC_RunAvgFilter( &Temp_AVG );
+				csprintf(cmd,"temp: %d.%d\r\n", value / 10, value % 10);
 				U1_TxPuts(cmd);
 			}
 			Temperature_Update_Timer++;
