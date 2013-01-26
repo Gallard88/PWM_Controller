@@ -31,6 +31,6 @@ uart1.o:	uart1.c
 uart3.o: C:\iccv7avr\include\iom2560v.h C:\iccv7avr\include\_iom640to2561v.h C:\iccv7avr\include\stdio.h C:\iccv7avr\include\stdarg.h C:\iccv7avr\include\_const.h .\uart3.h .\uart.c
 uart3.o:	uart3.c
 	$(CC) -c $(CFLAGS) uart3.c
-main.o: C:\iccv7avr\include\iom2560v.h C:\iccv7avr\include\_iom640to2561v.h C:\iccv7avr\include\string.h C:\iccv7avr\include\_const.h .\CmdProcessor.h .\pwm.h .\PWM_Cmds.h .\timer.h .\uart1.h .\uart3.h
+main.o: C:\iccv7avr\include\iom2560v.h C:\iccv7avr\include\_iom640to2561v.h C:\iccv7avr\include\string.h C:\iccv7avr\include\_const.h C:\iccv7avr\include\stdio.h C:\iccv7avr\include\stdarg.h .\eeprom.h .\conf_eeprom.h .\CmdProcessor.h .\pwm.h .\PWM_Cmds.h .\timer.h .\uart1.h .\uart3.h
 main.o:	main.c
 	$(CC) -c $(CFLAGS) main.c

@@ -12,16 +12,17 @@
  *	Treat 'const' as '__flash' = true.
  *	Accept Extensions (C++ comments, binary constants) = true.
  *
+	Last change: TB 26/01/2013 12:26:11 PM
  */
 // *****************************************************************************
 //#include ".h"
 
 #include <iom2560v.h>
 #include <string.h>
+#include <stdio.h>
 
-//#include "conf_eeprom.h"
-//#include "eeprom.h"
-
+#include "eeprom.h"
+#include "conf_eeprom.h"
 #include "CmdProcessor.h"
 #include "pwm.h"
 #include "PWM_Cmds.h"
@@ -154,6 +155,7 @@ void IO_Init(void)
 int main( void )
 {
 	int time;
+	char cmd[50];
 
 	//-----------------------------------------------
 	// initialise port pins.
@@ -208,29 +210,28 @@ int main( void )
 		if ( Timer_Is100ms() )
 		{
 			// run timers, see if we need to send any commands via USB.
-/*
-			time = EEpromRead_2(EE_TEMP_UPDATE);
-			if (( time > 0 ) && ( time > Current_Update_Timer ))
+			time = EEpromRead_2_default(EE_CURRENT_UPDATE, 5);
+			if (( time > 0 ) && ( Current_Update_Timer > time ))
 			{
 				Current_Update_Timer = 0;
-				Send_Temp();
+				csprintf(cmd,"current: %d\r\n", 0);
+				U1_TxPuts(cmd);
 			}
-			else
-				Current_Update_Timer++;
-*/
-/*
-			time = EEpromRead_2(EE_TEMP_UPDATE);
-			if (( time > 0 ) && ( time > Temperature_Update_Timer ))
-			{
-				Temperature_Update_Timer = 0;
-				Send_Current();
-			}
-			else
-				Temperature_Update_Timer++;
-*/
+			Current_Update_Timer++;
+
 		}
+
 		if ( Timer_Is1s() )
 		{
+			time = EEpromRead_2_default(EE_TEMP_UPDATE, 1);
+			if (( time > 0 ) && ( Temperature_Update_Timer > time ))
+			{
+				Temperature_Update_Timer = 0;
+				csprintf(cmd,"temp: %d\r\n", 0);
+				U1_TxPuts(cmd);
+			}
+			Temperature_Update_Timer++;
+
 		  PORTG ^= 0x1;
 		}
 	}
