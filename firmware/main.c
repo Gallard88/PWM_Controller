@@ -12,10 +12,9 @@
  *	Treat 'const' as '__flash' = true.
  *	Accept Extensions (C++ comments, binary constants) = true.
  *
-	Last change: TB 26/01/2013 12:50:07 PM
+	Last change: TB 28/01/2013 3:42:58 PM
  */
 // *****************************************************************************
-//#include ".h"
 
 #include <iom2560v.h>
 #include <string.h>
@@ -23,7 +22,6 @@
 
 #include "Adc.h"
 #include "eeprom.h"
-#include "conf_eeprom.h"
 #include "CmdProcessor.h"
 #include "pwm.h"
 #include "PWM_Cmds.h"
@@ -31,48 +29,16 @@
 #include "uart1.h"
 #include "uart3.h"
 
+// *****************************************************************************
+const char Firmware_Version[] = "V 1.0";
+const char Firmware_Date[] = __DATE__;
+const char Firmware_Time[] = __TIME__;
 
-// comms time out command
 // *****************************************************************************
 #define LINEBUF_SIZE	256
 
 char USB_LineBuf[LINEBUF_SIZE];
 char Ext_LineBuf[LINEBUF_SIZE];
-
-unsigned int Current_Update_Timer;
-unsigned int Temperature_Update_Timer;
-
-// adc ch 0 = temp
-// adc ch 1 = current
-
-#define TEMP_AVG_BUFFER_SIZE	8
-int Temp_Avg_Buffer[TEMP_AVG_BUFFER_SIZE];
-ADC_Avg_Filter Temp_AVG =
-{
-	0,	// ch
-	2, 	// scale_div
-	2, 	// scale_mult
-	Temp_Avg_Buffer, // *buffer
-	0, // buf_ofs
-	TEMP_AVG_BUFFER_SIZE, // buf_size
-	0, // offset
-	0, // avg
-};
-
-#define CURR_AVG_BUFFER_SIZE	4
-int Current_Avg_Buffer[CURR_AVG_BUFFER_SIZE];
-
-ADC_Avg_Filter Curr_AVG =
-{
-	1,	// ch
-	2, 	// scale_div
-	2, 	// scale_mult
-	Current_Avg_Buffer, // *buffer
-	0, // buf_ofs
-	CURR_AVG_BUFFER_SIZE, // buf_size
-	0, // offset
-	0, // average
-};
 
 // *****************************************************************************
 void Run_USB_Serial(void)
@@ -158,12 +124,17 @@ void IO_Init(void)
 }
 
 // *****************************************************************************
+void Print_Version(void)
+{
+	char buffer[100];
+
+	csprintf(buffer, "Firmware: %S, %S, %S\r\n", Firmware_Version, Firmware_Time, Firmware_Date );
+	U1_TxPuts(buffer);
+}
+
+// *****************************************************************************
 int main( void )
 {
-	int time;
-	char cmd[50];
-	int value;
-
 	//-----------------------------------------------
 	// initialise port pins.
 	IO_Init();
@@ -176,7 +147,8 @@ int main( void )
 
 	Timer_Init();	// Heart Beat Timer.
 
-	// ADC - To do
+	// ADC
+	ADC_Init();
 
 	U1_Init ( 115200 );	// USB Coms.
 	U3_Init ( 115200 );	// Expansion port.
@@ -187,26 +159,19 @@ int main( void )
 
 	//-----------------------------------------------
 	// Initialise Sub-modules.
+	PWM_Cmds_Init();
 
-	// Current Sensor.  - To do
-	ADC_LoadAvgFilter( &Curr_AVG);
-	// Temp Sensor.
-	ADC_LoadAvgFilter( &Temp_AVG);
 	// RTC Clock  - To do
 
 	//-----------------------------------------------
 	// Run main loop.
-	U1_TxPutsf("Hello World\r\n");
+	Print_Version();
 	PORTC ^= 0x1;
+	
 	for ( ; ; )
 	{
 		asm(" sei");
 		asm("wdr");
-		if ( Timer_Is1ms() )
-		{
-			// run current sensor
-			// run temp sensor.
-		}
 		if ( Timer_Is10ms() )
 		{
 			// USB command handler
@@ -218,33 +183,11 @@ int main( void )
 
 		if ( Timer_Is100ms() )
 		{
-			// run timers, see if we need to send any commands via USB.
-			time = EEpromRead_2_default(EE_CURRENT_UPDATE, 5);
-			if (( time > 0 ) && ( Current_Update_Timer > time ))
-			{
-				Current_Update_Timer = 0;
-				value = 	ADC_RunAvgFilter( &Curr_AVG);
-
-				csprintf(cmd,"current: %d\r\n", value);
-				U1_TxPuts(cmd);
-			}
-			Current_Update_Timer++;
-
+			PWM_Cmds_Run();
 		}
 
 		if ( Timer_Is1s() )
 		{
-			time = EEpromRead_2_default(EE_TEMP_UPDATE, 1);
-			if (( time > 0 ) && ( Temperature_Update_Timer > time ))
-			{
-				Temperature_Update_Timer = 0;
-
-				value = ADC_RunAvgFilter( &Temp_AVG );
-				csprintf(cmd,"temp: %d.%d\r\n", value / 10, value % 10);
-				U1_TxPuts(cmd);
-			}
-			Temperature_Update_Timer++;
-
 		  PORTG ^= 0x1;
 		}
 	}

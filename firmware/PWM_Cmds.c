@@ -6,7 +6,7 @@
 	
 	Author: TOM BURNS
 	Created: TB  26/01/2013 11:55:10 AM
-	Last change: TB 26/01/2013 12:13:21 PM
+	Last change: TB 28/01/2013 3:31:45 PM
 */
 //*****************************************************************************
 #include <stdlib.h> 
@@ -14,6 +14,7 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "adc.h"
 #include "CmdProcessor.h"
 #include "PWM_Cmds.h"
 #include "pwm.h"
@@ -21,6 +22,42 @@
 #include "uart3.h"
 #include "eeprom.h"
 #include "conf_eeprom.h"
+
+//*****************************************************************************
+//*****************************************************************************
+int Ext_Current;
+
+unsigned int Current_Update_Timer;
+unsigned int Temperature_Update_Timer;
+
+#define TEMP_AVG_BUFFER_SIZE	8
+int Temp_Avg_Buffer[TEMP_AVG_BUFFER_SIZE];
+ADC_Avg_Filter Temp_AVG =
+{
+	0,	// ch
+	2, 	// scale_div
+	2, 	// scale_mult
+	Temp_Avg_Buffer, // *buffer
+	0, // buf_ofs
+	TEMP_AVG_BUFFER_SIZE, // buf_size
+	0, // offset
+	0, // avg
+};
+
+#define CURR_AVG_BUFFER_SIZE	4
+int Current_Avg_Buffer[CURR_AVG_BUFFER_SIZE];
+
+ADC_Avg_Filter Curr_AVG =
+{
+	1,	// ch
+	2, 	// scale_div
+	2, 	// scale_mult
+	Current_Avg_Buffer, // *buffer
+	0, // buf_ofs
+	CURR_AVG_BUFFER_SIZE, // buf_size
+	0, // offset
+	0, // average
+};
 
 //*****************************************************************************
 int Time(char *buf)
@@ -138,8 +175,6 @@ int Update_Rate(char *buf)
 }
 
 //*****************************************************************************
-int Ext_Current;
-//*****************************************************************************
 int Expansion_Current(char *buf)
 {
 /*
@@ -192,6 +227,58 @@ const struct cmdtable Ext_CmdTable[] =
 	"current",			&Expansion_Current,
 	NULL,		NULL
 };
+
+//*****************************************************************************
+void Run_Current_Sensor(void)
+{
+  int time, value;
+  char cmd[50];
+
+  // run timers, see if we need to send any commands via USB.
+  time = EEpromRead_2_default(EE_CURRENT_UPDATE, 5);
+  if (( time > 0 ) && ( Current_Update_Timer > time ))
+  {
+    Current_Update_Timer = 0;
+    value = ADC_RunAvgFilter( &Curr_AVG);
+    csprintf(cmd,"current: %d\r\n", value);
+    U1_TxPuts(cmd);
+  }
+  Current_Update_Timer++;
+}
+
+//*****************************************************************************
+void Run_Temp_Sensor(void)
+{
+  int time, value;
+  char cmd[50];
+
+  time = EEpromRead_2_default(EE_TEMP_UPDATE, 1);
+  if (( time > 0 ) && ( Temperature_Update_Timer > time ))
+  {
+    Temperature_Update_Timer = 0;
+    value = ADC_RunAvgFilter( &Temp_AVG );
+    csprintf(cmd,"temp: %d.%d\r\n", value / 10, value % 10);
+    U1_TxPuts(cmd);
+  }
+  Temperature_Update_Timer++;
+}
+
+//*****************************************************************************
+void PWM_Cmds_Run(void)
+{
+  Run_Current_Sensor();
+  Run_Temp_Sensor();
+}
+
+//*****************************************************************************
+void PWM_Cmds_Init(void)
+{
+	// Current Sensor
+	ADC_LoadAvgFilter( &Curr_AVG);
+
+	// Temp Sensor
+	ADC_LoadAvgFilter( &Temp_AVG);
+}
 
 //*****************************************************************************
 //*****************************************************************************
