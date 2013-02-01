@@ -12,7 +12,7 @@
  *	Treat 'const' as '__flash' = true.
  *	Accept Extensions (C++ comments, binary constants) = true.
  *
-	Last change: TB 28/01/2013 3:42:58 PM
+	Last change: TB 2/02/2013 10:41:19 AM
  */
 // *****************************************************************************
 
@@ -21,6 +21,7 @@
 #include <stdio.h>
 
 #include "Adc.h"
+#include "conf_eeprom.h"
 #include "eeprom.h"
 #include "CmdProcessor.h"
 #include "pwm.h"
@@ -39,6 +40,7 @@ const char Firmware_Time[] = __TIME__;
 
 char USB_LineBuf[LINEBUF_SIZE];
 char Ext_LineBuf[LINEBUF_SIZE];
+int Com_Timer;
 
 // *****************************************************************************
 void Run_USB_Serial(void)
@@ -54,24 +56,23 @@ void Run_USB_Serial(void)
 			USB_LineBuf[0] = 0;
 		else if ( rv > 0 )
 		{
-		    if ( strlen(USB_LineBuf) )
-			{
-				U1_TxPutsf("Cmd >");
-				U1_TxPuts(USB_LineBuf);
-				U1_TxPutsf("<\r\n");
+		  if ( strlen(USB_LineBuf) )
+      {
 				cmd = Cmd_Lookup( USB_CmdTable, USB_LineBuf);
-				if ( cmd < 0 )
-					U1_TxPutsf("?\r\n");
-				else
-					U1_TxPutsf("OK\r\n");
+				if ( cmd >= 0 )
+				{
+  				PWM_ClearAlarm(0x80);
+          Com_Timer = 0;
   				USB_LineBuf[0] = 0;
+					U1_TxPutsf("OK\r\n");
+				}
 			}
 		}
 	}
 	while ( rv != 0 );
 }
+
 // *****************************************************************************
-/*
 void Run_External_Serial(void)
 {// here every 10ms
 	int rv;
@@ -85,15 +86,12 @@ void Run_External_Serial(void)
 			Ext_LineBuf[0] = 0;
 		else
 		{
-			U1_TxPutsf("Cmd > ");
-			U1_TxPuts(USB_LineBuf);
-			U1_TxPutsf("<\r\n");
-//			Cmd_Lookup(Ext_CmdTable, Ext_LineBuf);
+			Cmd_Lookup(Ext_CmdTable, Ext_LineBuf);
 		}
 	}
 	while ( rv != 0 );
 }
-*/
+
 // *****************************************************************************
 void IO_Init(void)
 {
@@ -133,6 +131,19 @@ void Print_Version(void)
 }
 
 // *****************************************************************************
+void WDT_Prescaler_Change(void)
+{
+  asm(" cli");
+  asm("wdr");
+
+  // Start timed equence
+  WDTCSR |= (1<<WDCE) | (1<<WDE);
+  // Set new prescaler(time-out) value = 64K cycles (~0.5 s)
+  WDTCSR = (1<<WDE) | (1<<WDP2) | (1<<WDP1);
+  asm(" sei");
+}
+
+// *****************************************************************************
 int main( void )
 {
 	//-----------------------------------------------
@@ -141,6 +152,7 @@ int main( void )
 	asm("wdr");
 
 	// start watchdog
+	WDT_Prescaler_Change();
 
 	//-----------------------------------------------
 	// Initialise hardware.
@@ -178,12 +190,22 @@ int main( void )
 			Run_USB_Serial();
 
 			// Expansion command handler
-//			Run_External_Serial();
+			Run_External_Serial();
 		}
 
 		if ( Timer_Is100ms() )
 		{
 			PWM_Cmds_Run();
+			Com_Timer++;
+			if ( Com_Timer > EEpromRead_1_default(EE_COM_TIMEOUT, 80) )
+			{
+				Com_Timer = 0;
+				if ( !PWM_isAlarm() )
+				{
+  				PWM_SetAlarm(0x80);
+					U1_TxPutsf("Coms Timeout\r\n");
+				}
+			}
 		}
 
 		if ( Timer_Is1s() )

@@ -6,7 +6,7 @@
 	
 	Author: TOM BURNS
 	Created: TB  26/01/2013 11:55:10 AM
-	Last change: TB 28/01/2013 3:31:45 PM
+	Last change: TB 2/02/2013 10:50:10 AM
 */
 //*****************************************************************************
 #include <stdlib.h> 
@@ -201,12 +201,21 @@ int Expansion_Current(char *buf)
 }
 
 //*****************************************************************************
+/*
 int Read_Firmware(char *buf)
 {
 	char cmd[50];
 
 	csprintf(cmd,"Firmware - To do\r\n" );
 	U1_TxPuts(cmd);
+	return 0;
+}
+*/
+//*****************************************************************************
+int Restart(char *buf)
+{
+	U3_TxPutsf("restart\r\n");
+	while ( 1 );
 	return 0;
 }
 
@@ -218,7 +227,8 @@ const struct cmdtable USB_CmdTable[] =
 	"temp",				&System_Temp,
 	"current",		&System_Current,
 	"update",			&Update_Rate,
-	"firmware",		&Read_Firmware,
+//	"firmware",		&Read_Firmware,
+	"restart",		&Restart,
 	NULL,					NULL
 };
 
@@ -268,6 +278,24 @@ void PWM_Cmds_Run(void)
 {
   Run_Current_Sensor();
   Run_Temp_Sensor();
+	if ( Temp_AVG.average > EEpromRead_2_default(EE_TEMP_LIMIT, 600) )
+	{
+    PWM_SetAlarm(0x40);
+	}
+	else
+	{
+    PWM_SetAlarm(0x40);
+	}
+/*
+	if ( Temp_AVG.average > EEpromRead_2_default(EE_CURRENT_LIMIT, 200) )
+	{
+    PWM_SetAlarm(0x40);
+	}
+	else
+	{
+    PWM_SetAlarm(0x40);
+	}
+*/
 }
 
 //*****************************************************************************

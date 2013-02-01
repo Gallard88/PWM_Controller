@@ -16,6 +16,7 @@
 	OCR3C,	 6
 	OCR3B,	 7
 	OCR3A	 8
+	Last change: TB 2/02/2013 10:48:27 AM
 */
 /***
 
@@ -137,6 +138,10 @@ void PWM_Initialise(void)
 
 	TCCR5A = (1<<COM5A1) | (1<<COM5A0) | (1<<COM5B1) | (1<<COM5B0) | (1<<COM5C1) | (1<<COM5C0) | (1<<WGM50);
 	TCCR5A = (1<<WGM52);
+
+	TCCR1B = (1<<CS11);
+	TCCR3B = (1<<CS31);
+	TCCR5B = (1<<CS51);
 
 	// make sure all chanels are turned off.
 	PWM_Clear();
