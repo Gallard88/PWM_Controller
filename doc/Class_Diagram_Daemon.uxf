@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="11.5.1">
+  <zoom_level>8</zoom_level>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>888</x>
+      <y>408</y>
+      <w>256</w>
+      <h>56</h>
+    </coordinates>
+    <panel_attributes>Serial.c
+--
+Handles direct coms with the hardware serial port.
+--
+
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>552</x>
+      <y>328</y>
+      <w>216</w>
+      <h>96</h>
+    </coordinates>
+    <panel_attributes>PWM_Daemon.c
+--
+Top level manager for the daemon.
+Daemonises the program.
+Then ties all the modles together.
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>744</x>
+      <y>376</y>
+      <w>160</w>
+      <h>88</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>24;24;144;72</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>856</x>
+      <y>112</y>
+      <w>256</w>
+      <h>96</h>
+    </coordinates>
+    <panel_attributes>Cmd_Processor.c
+--
+Parses a serial stream.
+Extracts \r\n delmitited fields of text</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>744</x>
+      <y>136</y>
+      <w>128</w>
+      <h>240</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>24;224;112;24</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>112</x>
+      <y>264</y>
+      <w>288</w>
+      <h>248</h>
+    </coordinates>
+    <panel_attributes>ShdMem_Interface.h
+--
+struct 
+{
+  mutex_t access;
+  float pmw[];
+  int ch_enable[];
+  float current;
+  float temperature;
+  int data_ready;
+};
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>376</x>
+      <y>352</y>
+      <w>192</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>24;24;176;24</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>576</x>
+      <y>560</y>
+      <w>184</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>JSON Parser
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>632</x>
+      <y>400</y>
+      <w>40</w>
+      <h>176</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>24;24;24;160</additional_attributes>
+  </element>
+</diagram>

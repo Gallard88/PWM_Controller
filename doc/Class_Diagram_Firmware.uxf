@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8"?><diagram program="umlet" version="11.3">
+  <zoom_level>7</zoom_level>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>168</x>
+      <y>280</y>
+      <w>119</w>
+      <h>98</h>
+    </coordinates>
+    <panel_attributes>Cmd Processor
+--
+Parses a line of data.
+Extracts each command.
+--
+Cmd_SkipSpace()
+Cmd_SkipChars()
+Cmd_Lookup()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>0</x>
+      <y>280</y>
+      <w>126</w>
+      <h>63</h>
+    </coordinates>
+    <panel_attributes>USB Uart
+--
+Controls Access to USB
+UART hardware</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>588</x>
+      <y>98</y>
+      <w>308</w>
+      <h>105</h>
+    </coordinates>
+    <panel_attributes>PWM Controller
+--
+Interfaces to hardware timers to control PWM outputs.
+Conatins an alarm list to disable outputs.
+--
+PWM_Initialise()
+PWM_SetDutyCycle()
+PWM_isAlarm()
+PWM_SetAlarm()
+PWM_ClearAlarm()
+
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>588</x>
+      <y>259</y>
+      <w>147</w>
+      <h>42</h>
+    </coordinates>
+    <panel_attributes>Real Time Clock Driver
+--
+Read/Write data to RTC Chip.</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>329</x>
+      <y>231</y>
+      <w>126</w>
+      <h>182</h>
+    </coordinates>
+    <panel_attributes>Cmd Handlers
+--
+Process' Commands from 
+USB Uart
+Periodically sends data via 
+USB Uart to host.
+--
+Cmd_Run()
+Time()
+Update_Pwm()
+System_Temp()
+System_Current()
+Update_Rate()
+Firmware()
+Expansion_Current()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>567</x>
+      <y>350</y>
+      <w>189</w>
+      <h>77</h>
+    </coordinates>
+    <panel_attributes>Temperature
+--
+Reads System Temperature.
+Using ADC avvg filter
+--
+Temp_Init()
+Temp_Run()
+Temp_Read()
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>567</x>
+      <y>448</y>
+      <w>189</w>
+      <h>77</h>
+    </coordinates>
+    <panel_attributes>Current Sensor
+--
+Reads System Current 
+using ADC Avg filter
+--
+Current_Init()
+Current_Run()
+Current_Read()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>105</x>
+      <y>280</y>
+      <w>76</w>
+      <h>34</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>21;21;63;21</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>266</x>
+      <y>280</y>
+      <w>76</w>
+      <h>41</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>21;21;63;28</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>434</x>
+      <y>154</y>
+      <w>167</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>154;21;21;77</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>434</x>
+      <y>259</y>
+      <w>167</w>
+      <h>55</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>154;21;21;42</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>434</x>
+      <y>336</y>
+      <w>146</w>
+      <h>41</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>133;28;21;21</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>434</x>
+      <y>371</y>
+      <w>146</w>
+      <h>111</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>133;98;21;21</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>861</x>
+      <y>399</y>
+      <w>126</w>
+      <h>91</h>
+    </coordinates>
+    <panel_attributes>ADC driver
+--
+Controls ADC hardware
+--
+ADC_Init()
+ADC_Read()
+
+ADC_RunAvg_Filter()
+ADC_LoadAvgFilter()
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>840</x>
+      <y>259</y>
+      <w>161</w>
+      <h>49</h>
+    </coordinates>
+    <panel_attributes>I2C Driver
+--
+Responsibilities:
+Interfaces to I2C hardware.</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>735</x>
+      <y>350</y>
+      <w>139</w>
+      <h>83</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>126;70;21;21</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>735</x>
+      <y>448</y>
+      <w>139</w>
+      <h>34</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>126;21;21;21</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>714</x>
+      <y>259</y>
+      <w>139</w>
+      <h>41</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>126;28;21;21</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>210</x>
+      <y>462</y>
+      <w>231</w>
+      <h>63</h>
+    </coordinates>
+    <panel_attributes>Expansion Uart
+--
+Controls Expansion Uart hardware.
+Sends commands to the second PWM contoller</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>287</x>
+      <y>392</y>
+      <w>118</w>
+      <h>83</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>21;70;105;21</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>77</x>
+      <y>322</y>
+      <w>503</w>
+      <h>237</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>21;21;56;224;385;224;490;84</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>42</x>
+      <y>322</y>
+      <w>538</w>
+      <h>251</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>21;21;70;238;448;238;525;154</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>357</x>
+      <y>42</y>
+      <w>154</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>EEProm
+--
+Controls Internal EEPROM.
+--
+EEpromRead_1()
+EEpromRead_1_default()
+EEpromRead_2()
+EEpromRead_2_default()
+EEpromRead_n()
+EEpromWrite_1()
+EEpromWrite_2()
+EEpromWrite_n()
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>357</x>
+      <y>161</y>
+      <w>41</w>
+      <h>83</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>28;21;21;70</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>140</x>
+      <y>42</y>
+      <w>189</w>
+      <h>105</h>
+    </coordinates>
+    <panel_attributes>Timer
+--
+Controls Timer 0.
+Creates Heart beat interrupt.
+--
+Timer_Init()
+Timer_Is1ms()
+Timer_Is10ms()
+Timer_Is100ms()
+Timer_Is1s()
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>280</x>
+      <y>126</y>
+      <w>97</w>
+      <h>118</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>21;21;84;105</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>63</x>
+      <y>623</y>
+      <w>140</w>
+      <h>63</h>
+    </coordinates>
+    <panel_attributes>Uart.c
+--
+Controls hardware for uart x.
+--
+Ux_RxEmpty()
+Ux_RxGetChar()
+Ux_RxGetLine()
+Ux_TxEmpty()
+Ux_TxFull()
+Ux_TxPutChar()
+Ux_TxPuts()
+Ux_TxPutsf()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>0</x>
+      <y>322</y>
+      <w>104</w>
+      <h>314</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>91;301;21;21</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>161</x>
+      <y>504</y>
+      <w>118</w>
+      <h>132</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>21;119;105;21</additional_attributes>
+  </element>
+</diagram>
