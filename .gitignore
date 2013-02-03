@@ -32,3 +32,8 @@
 *BACKUP*
 *.SchDocPreview
 *Thumbs.db
+*autom4te*
+*.deps*
+*.in
+*Makefile
+*kate-swp
