@@ -35,14 +35,20 @@ int Temp_Avg_Buffer[TEMP_AVG_BUFFER_SIZE];
 ADC_Avg_Filter Temp_AVG =
 {
 	0,	// ch
-	2, 	// scale_div
-	2, 	// scale_mult
+	1, 	// scale_div
+	1, 	// scale_mult
 	Temp_Avg_Buffer, // *buffer
 	0, // buf_ofs
 	TEMP_AVG_BUFFER_SIZE, // buf_size
-	0, // offset
+	282, // offset
 	0, // avg
 };
+/**
+619 = 25.9 C
+617 = 24.9 C
+616 = 24.8 C
+613 = 23
+**/
 
 #define CURR_AVG_BUFFER_SIZE	4
 int Current_Avg_Buffer[CURR_AVG_BUFFER_SIZE];
@@ -50,7 +56,7 @@ int Current_Avg_Buffer[CURR_AVG_BUFFER_SIZE];
 ADC_Avg_Filter Curr_AVG =
 {
 	1,	// ch
-	2, 	// scale_div
+	1, 	// scale_div
 	2, 	// scale_mult
 	Current_Avg_Buffer, // *buffer
 	0, // buf_ofs
@@ -267,7 +273,7 @@ void Run_Temp_Sensor(void)
   {
     Temperature_Update_Timer = 0;
     value = ADC_RunAvgFilter( &Temp_AVG );
-    csprintf(cmd,"temp: %d.%d\r\n", value / 10, value % 10);
+    csprintf(cmd,"temp: %d\r\n", value);
     U1_TxPuts(cmd);
   }
   Temperature_Update_Timer++;
@@ -276,26 +282,8 @@ void Run_Temp_Sensor(void)
 //*****************************************************************************
 void PWM_Cmds_Run(void)
 {
-  Run_Current_Sensor();
+//  Run_Current_Sensor();
   Run_Temp_Sensor();
-	if ( Temp_AVG.average > EEpromRead_2_default(EE_TEMP_LIMIT, 600) )
-	{
-    PWM_SetAlarm(0x40);
-	}
-	else
-	{
-    PWM_SetAlarm(0x40);
-	}
-/*
-	if ( Temp_AVG.average > EEpromRead_2_default(EE_CURRENT_LIMIT, 200) )
-	{
-    PWM_SetAlarm(0x40);
-	}
-	else
-	{
-    PWM_SetAlarm(0x40);
-	}
-*/
 }
 
 //*****************************************************************************
