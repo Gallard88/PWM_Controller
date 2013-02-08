@@ -20,7 +20,9 @@
 
 #define EE_COM_TIMEOUT	9		// 1 bytes
 
-#define EE_NEXT				10
+#define EE_VOLT_UPDATE	10
+
+#define EE_NEXT				12
 #define EE_LIMIT			(4*1024)
 
 //*****************************************************************************

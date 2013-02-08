@@ -1,0 +1,11 @@
+
+Update: [temp] [rate x100ms]
+
+temp: controls how often the system temperature is printed.
+current: Controls how often the system current is printed.
+volt: controls how often the system voltage is printed.
+
+----------------------------------------
+temp: d\r\n = system temp.
+current: d\r\n = system current.
+volt: d.d\r\n = system voltage.
