@@ -7,5 +7,5 @@ volt: controls how often the system voltage is printed.
 
 ----------------------------------------
 temp: d\r\n = system temp.
-current: d\r\n = system current.
+current: d.d\r\n = system current.
 volt: d.d\r\n = system voltage.

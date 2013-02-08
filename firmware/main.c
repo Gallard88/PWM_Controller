@@ -62,9 +62,9 @@ void Run_USB_Serial(void)
 				if ( cmd >= 0 )
 				{
   				PWM_ClearAlarm(0x80);
-          Com_Timer = 0;
-  				USB_LineBuf[0] = 0;
-					U1_TxPutsf("OK\r\n");
+                Com_Timer = 0;
+  		 		USB_LineBuf[0] = 0;
+				U1_TxPutsf("OK\r\n");
 				}
 			}
 		}
@@ -96,6 +96,11 @@ void Run_External_Serial(void)
 void IO_Init(void)
 {
  				  //   76543210
+			   	  // 0bIOOIIIII
+ 	DDRB = 0x60;		  
+	PORTB = 0x00;
+
+ 				  //   76543210
 			   	  // 0b0000OI00
  	DDRC = 0x01;		  
 	PORTC = 0x01;
@@ -106,7 +111,12 @@ void IO_Init(void)
 	PORTD = 0x0;
 	
  				  //   76543210
-			   	  // 0b0000OI00
+			   	  // 0b__OOO____
+ 	DDRE = 0x38;
+	PORTE = 0x00;
+
+ 				  //   76543210
+			   	  // 0bIIIIIIII
  	DDRF = 0x00;
 	PORTF = 0x00;
 
@@ -125,6 +135,10 @@ void IO_Init(void)
  	DDRK = 0x00;
 	PORTK = 0x00;
 
+ 				  //   76543210
+			   	  // 0bIIOOOIII
+// 	DDRL = 0x38;
+//	PORTL = 0x00;
 }
 
 // *****************************************************************************
@@ -154,6 +168,7 @@ int main( void )
 {
 	//-----------------------------------------------
 	// initialise port pins.
+	asm("wdr");
 	IO_Init();
 	asm("wdr");
 
@@ -173,7 +188,7 @@ int main( void )
 
 	// I2C - To read time data from clock. - To do
 
-	PWM_Initialise();
+//	PWM_Initialise();
 
 	//-----------------------------------------------
 	// Initialise Sub-modules.
@@ -185,6 +200,8 @@ int main( void )
 	// Run main loop.
 	Print_Version();
 	PORTC ^= 0x1;
+	
+//	PORTL |= 0xFF;
 	
 	for ( ; ; )
 	{
@@ -202,16 +219,18 @@ int main( void )
 		if ( Timer_Is100ms() )
 		{
 			PWM_Cmds_Run();
+/*			
 			Com_Timer++;
 			if ( Com_Timer > EEpromRead_1_default(EE_COM_TIMEOUT, 80) )
 			{
 				Com_Timer = 0;
 				if ( !PWM_isAlarm() )
 				{
-  				PWM_SetAlarm(0x80);
+//  				PWM_SetAlarm(0x80);
 					U1_TxPutsf("Coms Timeout\r\n");
 				}
 			}
+*/			
 		}
 
 		if ( Timer_Is1s() )

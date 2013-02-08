@@ -41,7 +41,8 @@ ADC_Avg_Filter Temp_AVG =
 	Temp_Avg_Buffer, // *buffer
 	0, // buf_ofs
 	TEMP_AVG_BUFFER_SIZE, // buf_size
-	282, // offset
+	0,   // pre offset
+	282, // post offset
 	0, // avg
 };
 /**
@@ -61,7 +62,8 @@ ADC_Avg_Filter Volt_AVG =
 	Volt_Avg_Buffer, // *buffer
 	0, // buf_ofs
 	VOLT_AVG_BUFFER_SIZE, // buf_size
-	0, // offset
+	0, // pre offset
+	0, // post offset
 	0, // avg
 };
 /**
@@ -74,15 +76,26 @@ int Current_Avg_Buffer[CURR_AVG_BUFFER_SIZE];
 
 ADC_Avg_Filter Curr_AVG =
 {
-	1,	// ch
-	1, 	// scale_div
-	2, 	// scale_mult
+	15,	// ch
+	8, 	// scale_div
+	136, 	// scale_mult
 	Current_Avg_Buffer, // *buffer
 	0, // buf_ofs
 	CURR_AVG_BUFFER_SIZE, // buf_size
-	0, // offset
-	0, // average
+	517, // pre offset
+	0, // post offset
+	0 // average
 };
+/**
+517 = 0A.
+522 = 0.266A
+528 = 0.577
+538 = 1.1
+
+scale fact.
+13m, 256d.
+pre offset = 517.
+*/
 
 //*****************************************************************************
 int Time(char *buf)
@@ -278,12 +291,13 @@ void Run_Current_Sensor(void)
   char cmd[50];
 
   // run timers, see if we need to send any commands via USB.
+  ADC_RunAvgFilter( &Curr_AVG);
   time = EEpromRead_2_default(EE_CURRENT_UPDATE, 5);
   if (( time > 0 ) && ( Current_Update_Timer > time ))
   {
     Current_Update_Timer = 0;
-    value = ADC_RunAvgFilter( &Curr_AVG);
-    csprintf(cmd,"current: %d\r\n", value);
+    value = Curr_AVG.average;
+    csprintf(cmd,"current: %d.%d\r\n", value /10, value %10);
     U1_TxPuts(cmd);
   }
   Current_Update_Timer++;
@@ -295,11 +309,12 @@ void Run_Temp_Sensor(void)
   int time, value;
   char cmd[50];
 
+  ADC_RunAvgFilter( &Temp_AVG );
   time = EEpromRead_2_default(EE_TEMP_UPDATE, 10);
   if (( time > 0 ) && ( Temperature_Update_Timer > time ))
   {
     Temperature_Update_Timer = 0;
-    value = ADC_RunAvgFilter( &Temp_AVG );
+    value = Temp_AVG.average;
     csprintf(cmd,"temp: %d\r\n", value);
     U1_TxPuts(cmd);
   }
@@ -312,11 +327,12 @@ void Run_Volt_Sensor(void)
   int time, value;
   char cmd[50];
 
+  ADC_RunAvgFilter( &Volt_AVG );
   time = EEpromRead_2_default(EE_VOLT_UPDATE, 10);
   if (( time > 0 ) && ( Volt_Update_Timer > time ))
   {
     Volt_Update_Timer = 0;
-    value = ADC_RunAvgFilter( &Volt_AVG );
+    value = Volt_AVG.average;
     csprintf(cmd,"volt: %d.%d\r\n", value /10, value %10);
     U1_TxPuts(cmd);
   }
@@ -326,9 +342,9 @@ void Run_Volt_Sensor(void)
 //*****************************************************************************
 void PWM_Cmds_Run(void)
 {
-//  Run_Current_Sensor();
+  Run_Current_Sensor();
   Run_Temp_Sensor();
-  Run_Volt_Sensor();
+  Run_Volt_Sensor();  
 }
 
 //*****************************************************************************

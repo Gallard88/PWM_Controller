@@ -26,7 +26,8 @@ typedef struct
 	int *buffer;	//
 	int buf_ofs;
 	int buf_size;	//
-	int offset;
+	int pre_offset;
+	int post_offset;
 	int average;
 } ADC_Avg_Filter;
 

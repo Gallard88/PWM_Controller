@@ -56,7 +56,7 @@ int ADC_RunAvgFilter(ADC_Avg_Filter *data)
 {
 	int value, i, *ptr;
 
-	value = ( ADC_Read(data->ch) * data->scale_mult ) >> data->scale_div;
+	value = (( ADC_Read(data->ch) - data->pre_offset)* data->scale_mult ) >> data->scale_div;
 
 	data->buffer[data->buf_ofs] = value;
 	data->buf_ofs++;
@@ -71,7 +71,7 @@ int ADC_RunAvgFilter(ADC_Avg_Filter *data)
 		i--;
 		value += *ptr++;
 	}
-	data->average = ( value / data->buf_size ) - data->offset;
+	data->average = ( value / data->buf_size ) - data->post_offset;
 	return data->average;
 }
 
