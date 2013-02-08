@@ -29,6 +29,10 @@ void ADC_Init(void)
 int ADC_Read(int ch)
 {
 	ADMUX = (ch & 7) + (1<<REFS0);
+	if ( ch > 7 )
+	  ADCSRB |= (1<< MUX5);
+	else
+	  ADCSRB &= ~(1<< MUX5);
 	ADCSRA = ADPS + (1<<ADEN) + (1<<ADSC);	// start the conversion
 	while ( ADCSRA & (1<<ADSC) )
 		;	// wait for conversion complete when ADSC will go low
