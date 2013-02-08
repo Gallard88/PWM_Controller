@@ -31,6 +31,9 @@
 *.SRC
 *BACKUP*
 *.SchDocPreview
+*.PcbDocPreview
+*.PcbDoc.htm
+*.pcbdoc_viewstate
 *Thumbs.db
 *autom4te*
 *.deps*
