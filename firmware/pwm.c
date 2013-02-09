@@ -85,7 +85,7 @@ static int PWM_RangeCheck(int duty)
 {
 	if ( duty > 100 )
 		return 100;
-	if ( duty < 100 )
+	if ( duty < 0 )
 		return 0;
 	return duty;
 }
@@ -93,12 +93,14 @@ static int PWM_RangeCheck(int duty)
 /******************************************/
 void PWM_SetDutyCycle(int ch, int duty)
 {
-	int value;
+	int value;	
+	// need to multiply by 2.55 to get full range.
+	// 327 / 128 = 2.55
 
-	if ( PWM_isAlarm() == 0 )
+//	if ( PWM_isAlarm() == 0 )
 	{
 		// convert from % to raw value.
-		value = ( PWM_RangeCheck(value) * PWM_TIMER_RES ) / PWM_TIMER_RES;
+		value = ( PWM_RangeCheck(duty) * 327 ) >> 7;
 		PWM_UpdateRegister(ch, value);
 	}
 }
@@ -116,37 +118,44 @@ int PWM_isAlarm(void)
 void PWM_SetAlarm(int alm)
 {
 	PWM_Alarms |= alm;
-	PWM_Clear();
+//	PWM_Clear();
 }
 
 /******************************************/
 void PWM_ClearAlarm(int alm)
 {
 	PWM_Alarms &= ~alm;
-	PWM_Clear();
+//	PWM_Clear();
 }
 
 /******************************************/
 void PWM_Initialise(void)
 {
 	// set up the 3 timers that run the PWM module.
-	TCCR1A = (1<<COM1A1) | (1<<COM1A0) | (1<<COM1B1) | (1<<COM1B0) | (1<<WGM10);
-	TCCR1A = (1<<WGM12);
+	TCCR1A = (1<<COM1A1) | (1<<COM1B1) | (1<<WGM10);
+	TCCR1B = (1<<WGM12) |  (1<<CS11);
 
-	TCCR3A = (1<<COM3A1) | (1<<COM3A0) | (1<<COM3B1) | (1<<COM3B0) | (1<<COM3C1) | (1<<COM3C0) | (1<<WGM30);
-	TCCR3A = (1<<WGM32);
+	TCCR3A = (1<<COM3A1) | (1<<COM3B1) | (1<<COM3C1) | (1<<WGM30);
+	TCCR3B = (1<<WGM32) |  (1<<CS31);
 
-	TCCR5A = (1<<COM5A1) | (1<<COM5A0) | (1<<COM5B1) | (1<<COM5B0) | (1<<COM5C1) | (1<<COM5C0) | (1<<WGM50);
-	TCCR5A = (1<<WGM52);
-
-	TCCR1B = (1<<CS11);
-	TCCR3B = (1<<CS31);
-	TCCR5B = (1<<CS51);
+	TCCR5A = (1<<COM5A1) | (1<<COM5B1) | (1<<COM5C1)| (1<<WGM50);
+	TCCR5B = (1<<WGM52) |  (1<<CS51);
 
 	// make sure all chanels are turned off.
 	PWM_Clear();
 }
-
+/*
+DDRD |= (1 << DDD6);
+    // PD6 is now an output
+    OCR0A = 128;
+    // set PWM for 50% duty cycle
+    TCCR0A |= (1 << COM0A1);
+    // set none-inverting mode
+    TCCR0A |= (1 << WGM01) | (1 << WGM00);
+    // set fast PWM Mode
+    TCCR0B |= (1 << CS01);
+    // set prescaler to 8 and starts PWM
+*/
 /******************************************/
 /******************************************/
 

@@ -137,8 +137,8 @@ void IO_Init(void)
 
  				  //   76543210
 			   	  // 0bIIOOOIII
-// 	DDRL = 0x38;
-//	PORTL = 0x00;
+ 	DDRL = 0x38;
+	PORTL = 0x00;
 }
 
 // *****************************************************************************
@@ -188,7 +188,7 @@ int main( void )
 
 	// I2C - To read time data from clock. - To do
 
-//	PWM_Initialise();
+	PWM_Initialise();
 
 	//-----------------------------------------------
 	// Initialise Sub-modules.
