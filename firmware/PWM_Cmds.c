@@ -58,7 +58,7 @@ ADC_Avg_Filter Volt_AVG =
 {
 	1,	// ch
 	8, 	// scale_div
-	139, 	// scale_mult
+	160, 	// scale_mult
 	Volt_Avg_Buffer, // *buffer
 	0, // buf_ofs
 	VOLT_AVG_BUFFER_SIZE, // buf_size
