@@ -54,9 +54,10 @@ void ADC_LoadAvgFilter(ADC_Avg_Filter *data)
 //*****************************************************************************
 int ADC_RunAvgFilter(ADC_Avg_Filter *data)
 {
-	int value, i, *ptr;
+	long value;
+	int i, *ptr;
 
-	value = (( ADC_Read(data->ch) - data->pre_offset)* data->scale_mult ) >> data->scale_div;
+	value = ((long)( ADC_Read(data->ch) - data->pre_offset)* (long) data->scale_mult ) >> data->scale_div;
 
 	data->buffer[data->buf_ofs] = value;
 	data->buf_ofs++;
