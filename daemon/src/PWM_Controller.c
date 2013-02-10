@@ -29,16 +29,13 @@ int Serial_fd;
 int Send_data;
 
 // *****************
-void System_Shutdown(int rv)
+void System_Shutdown(void)
 {
   // detach from the segment:
   if (shmdt(PWM_ptr) == -1)
-  {
     perror("shmdt");
-    exit(1);
-  }
-  closelog();
-  exit(rv);
+
+	closelog();
 }
 
 // *****************
@@ -70,7 +67,7 @@ int Create_Shared_Memory( void )
 
   // attach to the segment to get a pointer to it:
   PWM_ptr = shmat(shmid, (void *)0, 0);
-  if (PWM_ptr == (char *)(-1))
+  if ((char *)PWM_ptr == (char *)(-1))
   {
     perror("shmat");
     exit(1);
@@ -91,14 +88,14 @@ void Read_Settings(void)
   if ( rv != JSONObject )
 	{
 		printf("System didn't work, %d\n", rv );
-    System_Shutdown( -1);
+    exit( -1);
   }
 
   J_Object = json_value_get_object(JSON_Settings);
 	if ( J_Object == NULL )
 	{
 		printf("JSON_Object == NULL\n");
-		System_Shutdown( -1);
+		exit( -1);
 	}
 	printf("Opening Serial Port: %s\n", json_object_get_string(J_Object, "Serial_Port"));
 }
@@ -121,7 +118,7 @@ void Connect_To_Port(void)
 	if ( name == NULL )
 	{
 		syslog(LOG_NOTICE, "Com Port name not set");
-		System_Shutdown(-1);
+		exit(-1);
 	}
 
  	Serial_fd = Serial_Openport((char *)name, 115200, 0,0 );
@@ -147,6 +144,10 @@ int main(int argc, char *argv[])
   openlog("PWM_Controller", LOG_PID , LOG_USER );
   syslog(LOG_NOTICE, "PWM_Controller Startup");
 
+
+	// register shutdown function.
+	atexit(System_Shutdown);
+
 //  printf("become a daemon\n");
 //  daemon( 0, 0 );
 
@@ -154,7 +155,7 @@ int main(int argc, char *argv[])
   if ( Create_Shared_Memory() < 0 )
   {
     printf("Shared Memory failed\n");
-    System_Shutdown(-1);
+    exit(-1);
   }
 
   printf("Read Settings\n");
@@ -192,7 +193,6 @@ int main(int argc, char *argv[])
 		sleep(10);
 	}
 
-	System_Shutdown(0);
   return 0;
 }
 
