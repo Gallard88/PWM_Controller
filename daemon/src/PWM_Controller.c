@@ -16,6 +16,7 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <time.h>
+#include <errno.h>
 
 #include "parson.h"
 #include "PWM_Controller.h"
@@ -93,7 +94,7 @@ void Check_Serial(int rv)
 		perror("Serial");
     PWM_ptr->port_connected = 0;
     Serial_fd = Serial_ClosePort(Serial_fd);
-		printf("Port Coms lost, %d, port closed\n", rv);
+    syslog(LOG_EMERG, "Serial coms lost, %d", errno);
   }
 }
 
