@@ -42,7 +42,7 @@ void System_Shutdown(void)
   // detach from the segment:
   if (shmdt(PWM_ptr) == -1)
     perror("shmdt");
-
+  syslog(LOG_EMERG, "System shutting down");
 	closelog();
 }
 
