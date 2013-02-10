@@ -90,7 +90,8 @@ int Serial_Openport(char * port, int baudrate, int rec_chars, int block_time)
     default      : printf("invalid baudrate\n");
                    return (-1);
   }
-  port_id = open(port, O_RDWR | O_NOCTTY | O_NDELAY);
+  port_id = open(port, O_RDWR | O_NOCTTY);
+//  port_id = open(port, O_RDWR | O_NOCTTY | O_NDELAY);
   if(port_id < 0 )
   {
     perror("Unable to open comport\n");
@@ -104,8 +105,8 @@ int Serial_Openport(char * port, int baudrate, int rec_chars, int block_time)
   options.c_iflag = IGNPAR;
   options.c_oflag = 0;
   options.c_lflag = 0;
-  options.c_cc[VMIN] = 0;      // block untill n bytes are received
-  options.c_cc[VTIME] = 1;     // block untill a timer expires (n * 100 mSec.)
+  options.c_cc[VMIN] = rec_chars;      // block untill n bytes are received
+  options.c_cc[VTIME] = block_time;     // block untill a timer expires (n * 100 mSec.)
 
   if( tcsetattr(port_id, TCSANOW, &options) == -1)
   {
@@ -140,7 +141,7 @@ int Serial_ReadData(int portId, unsigned char *buf, int length)
 int Serial_ClosePort(int portId)
 {
   close(portId);
-  return 0;
+  return -1;
 }
 
 //==============================================
