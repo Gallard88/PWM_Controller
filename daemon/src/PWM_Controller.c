@@ -1,3 +1,7 @@
+
+// *****************
+#define _XOPEN_SOURCE
+
 // *****************
 #include <fcntl.h>
 #include <signal.h>
@@ -27,6 +31,10 @@ JSON_Object *J_Object;
 
 int Serial_fd;
 int Send_data;
+
+#define SERIAL_BUF_SIZE 4096
+char SerialRead_Buf[SERIAL_BUF_SIZE];
+
 
 // *****************
 void System_Shutdown(void)
@@ -75,6 +83,18 @@ int Create_Shared_Memory( void )
 
   pthread_mutex_init(&PWM_ptr->access, NULL);
   return 0;
+}
+
+// *****************
+void Check_Serial(int rv)
+{
+  if ( rv < 0 )
+  {
+		perror("Serial");
+    PWM_ptr->port_connected = 0;
+    Serial_fd = Serial_ClosePort(Serial_fd);
+		printf("Port Coms lost, %d, port closed\n", rv);
+  }
 }
 
 // *****************
@@ -136,11 +156,63 @@ void Connect_To_Port(void)
 }
 
 // *****************
+void RunTimer(int sig)
+{// receive signal, set up next tick.
+	static int write_time;
+  struct timeval tv;
+  int rv = 1;
+
+  if ( Serial_fd < 0 )
+    return ;	// serial port not configured so don't bother
+
+  gettimeofday(&tv, NULL);
+  if (( tv.tv_sec - write_time ) > 3600)
+  {// here once an hour
+    write_time = tv.tv_sec;
+		printf("sending system time\n");
+//    rv = Write_SystemTime(tv.tv_sec);
+    Check_Serial(rv);
+  }
+
+  pthread_mutex_lock( &PWM_ptr->access );
+  if ( PWM_ptr->data_ready )
+  {
+		printf("sending PWM data\n");
+//    rv = Send_PWMChanelData();
+    Check_Serial(rv);
+    PWM_ptr->data_ready = 0;
+  }
+  pthread_mutex_unlock( &PWM_ptr->access );
+}
+
+// *****************
+void Setup_Timer(void)
+{
+  struct itimerval timer;
+  struct sigaction sig;
+
+  // Install timer_handler as the signal handler for SIGVTALRM.
+  memset (&sig, 0, sizeof (struct sigaction));
+  sig.sa_handler = &RunTimer;
+  sigaction (SIGALRM , &sig, NULL);
+
+  // Configure the timer to expire after 25 msec...
+  timer.it_value.tv_sec = 0;
+  timer.it_value.tv_usec = 25000;
+  // ... and every 25 msec after that.
+  timer.it_interval.tv_sec = 0;
+  timer.it_interval.tv_usec = 25000;
+
+  // Start a virtual timer.
+  setitimer (ITIMER_REAL, &timer, NULL);
+}
+
+// *****************
 int main(int argc, char *argv[])
 {
-	int write_time = 0;
-	struct timeval tv;
   int loop = 1;
+	int rv;
+
   openlog("PWM_Controller", LOG_PID , LOG_USER );
   syslog(LOG_NOTICE, "PWM_Controller Startup");
 
@@ -161,6 +233,8 @@ int main(int argc, char *argv[])
   printf("Read Settings\n");
 	Read_Settings();
 
+	Setup_Timer();
+
 	while ( loop > 0 )
 	{
 		printf("Open Serial port\n");
@@ -169,15 +243,18 @@ int main(int argc, char *argv[])
 		while ( Serial_fd >= 0 )
 		{
 			PWM_ptr->port_connected = 1;
-			gettimeofday(&tv, NULL);
 			// run receiver
-			//
-			if (( tv.tv_sec - write_time ) > 3600)
-			{// here once an hour
-				write_time = tv.tv_sec;
-				Write_SystemTime(tv.tv_sec);
+//			rv = Serial_ReadString(Serial_fd, SerialRead_Buf, SERIAL_BUF_SIZE);
+			rv = read(Serial_fd, SerialRead_Buf, SERIAL_BUF_SIZE);
+			Check_Serial(rv);
+			if ( rv > 0 )
+			{
+				SerialRead_Buf[rv] = 0;
+				printf(">> %d, %s\n", rv, SerialRead_Buf);
+				SerialRead_Buf[0] = 0;
+
 			}
-			else
+
 			if ( Send_data )
 			{
 				pthread_mutex_lock( &PWM_ptr->access );
@@ -185,12 +262,15 @@ int main(int argc, char *argv[])
 				{
 					Send_PWMChanelData();
 					PWM_ptr->data_ready = 0;
+					printf("PWM data sent\n");
 				}
 				pthread_mutex_unlock( &PWM_ptr->access );
 				Send_data = 0;
 			}
 		}
-		sleep(10);
+		printf("Port Coms lost\n");
+		break;
+//		sleep(10);
 	}
 
   return 0;
