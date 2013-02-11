@@ -259,9 +259,8 @@ int main(int argc, char *argv[])
 			if ( rv > 0 )
 			{
 				SerialRead_Buf[length + rv] = 0;
-				printf("CR %s\n",	strchr(SerialRead_Buf, '\n')== NULL? "Found":"Missing");
 //				printf("Raw: %s\n", SerialRead_Buf);
-//				rv = CmdParse_ProcessString(Cmd_Table, SerialRead_Buf, Serial_fd);
+				rv = CmdParse_ProcessString(Cmd_Table, SerialRead_Buf, Serial_fd);
 //				Check_Serial(rv);
 			}
 		}

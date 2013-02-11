@@ -110,7 +110,7 @@ char *CmdParse_SkipChars(char *ptr)
 
 //	***************************************************************************
 //	***************************************************************************
-int CmdParse_ProcessString(const  struct CmdFunc *table, char *string, int fd)
+int CmdParse_ProcessString(const struct CmdFunc *table, char *string, int fd)
 {
 	struct CmdFunc *element;
 	char *cmd;
@@ -121,7 +121,7 @@ int CmdParse_ProcessString(const  struct CmdFunc *table, char *string, int fd)
 	end = strchr(string, '\n');
 	if ( end != NULL )
 	{
-		printf("Line found");
+		printf("Line found\n");
 		*end++ = 0; // terminate this string.
 		cmd = CmdParse_SkipSpace(string);	// remove any preceding white space.
 
@@ -147,8 +147,10 @@ int CmdParse_ProcessString(const  struct CmdFunc *table, char *string, int fd)
 
 		}
 */
-		memmove(string, end, strlen(end));
+//		memmove(string, end, strlen(end));
 	}
+	else
+		printf("No Line\n");
 	return rv;
 }
 
