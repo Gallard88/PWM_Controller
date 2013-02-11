@@ -21,6 +21,7 @@
 #include "parson.h"
 #include "PWM_Controller.h"
 #include "Serial.h"
+#include "Command_List.h"
 
 // *****************
 const char PWM_Con_Settings_file[] = "PWM_Controller.conf";
@@ -31,10 +32,11 @@ JSON_Value *JSON_Settings;
 JSON_Object *J_Object;
 
 int Serial_fd;
-int Send_data;
 
 #define SERIAL_BUF_SIZE 4096
 char SerialRead_Buf[SERIAL_BUF_SIZE];
+
+//CmdFuncList_t Cmd_List;
 
 
 // *****************
@@ -122,16 +124,6 @@ void Read_Settings(void)
 }
 
 // *****************
-void Write_SystemTime(unsigned long time)
-{
-	// write the existing time to the controller.
-}
-
-void Send_PWMChanelData(void)
-{
-}
-
-// *****************
 void Connect_To_Port(void)
 {
 	const char *name = json_object_get_string(J_Object, "Serial_Port");
@@ -148,12 +140,17 @@ void Connect_To_Port(void)
 	syslog(LOG_NOTICE, "Com Port %s connected", name);
 	// send start up commands.
 	// read time
+	Send_GetTime(Serial_fd);
 	// send temp limit,
 	// send temp update rate
+	Send_TempData(Serial_fd, J_Object);
+
 	// send current limit,
 	// send current update rate
-	// force unit to restart
+	Send_CurrentData(Serial_fd, J_Object);
 
+	// force unit to restart
+	Send_Restart(Serial_fd);
 }
 
 // *****************
@@ -162,6 +159,7 @@ void RunTimer(int sig)
 	static int write_time;
   struct timeval tv;
   int rv = 1;
+	int i;
 
   if ( Serial_fd < 0 )
     return ;	// serial port not configured so don't bother
@@ -171,7 +169,7 @@ void RunTimer(int sig)
   {// here once an hour
     write_time = tv.tv_sec;
 		printf("sending system time\n");
-//    rv = Write_SystemTime(tv.tv_sec);
+		rv = Send_SystemTime(Serial_fd, write_time);
     Check_Serial(rv);
   }
 
@@ -179,8 +177,12 @@ void RunTimer(int sig)
   if ( PWM_ptr->data_ready )
   {
 		printf("sending PWM data\n");
-//    rv = Send_PWMChanelData();
-    Check_Serial(rv);
+
+		for ( i = 0; i < PWM_NUM_CHANELS; i++ )
+		{
+			rv = Send_PWMChanelData(Serial_fd, i, PWM_ptr->ch[i]);
+			Check_Serial(rv);
+		}
     PWM_ptr->data_ready = 0;
   }
   pthread_mutex_unlock( &PWM_ptr->access );
@@ -232,6 +234,9 @@ int main(int argc, char *argv[])
     exit(-1);
   }
 
+//  Cmd_List = CmdParse_CreateFuncList();
+//	Build_CmdList(Cmd_List);
+
   printf("Read Settings\n");
 	Read_Settings();
 
@@ -254,22 +259,10 @@ int main(int argc, char *argv[])
 			if ( rv > 0 )
 			{
 				SerialRead_Buf[length + rv] = 0;
-				printf(">> %d, %d, %s\n", rv, strlen(SerialRead_Buf) , SerialRead_Buf);
-//				SerialRead_Buf[0] = 0;
-
-			}
-
-			if ( Send_data )
-			{
-				pthread_mutex_lock( &PWM_ptr->access );
-				if ( PWM_ptr->data_ready )
-				{
-					Send_PWMChanelData();
-					PWM_ptr->data_ready = 0;
-					printf("PWM data sent\n");
-				}
-				pthread_mutex_unlock( &PWM_ptr->access );
-				Send_data = 0;
+				printf("CR %s\n",	strchr(SerialRead_Buf, '\n')== NULL? "Found":"Missing");
+//				printf("Raw: %s\n", SerialRead_Buf);
+//				rv = CmdParse_ProcessString(Cmd_Table, SerialRead_Buf, Serial_fd);
+//				Check_Serial(rv);
 			}
 		}
 		printf("Port Coms lost\n");

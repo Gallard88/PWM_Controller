@@ -7,12 +7,6 @@
 #include "CmdParse.h"
 //	***************************************************************************
 //	***************************************************************************
-struct CmdFunc
-{
-	const char *cmd;
-	Cmd_Callback func;
-};
-
 struct CmdFunc_List
 {
 	int size;
@@ -52,12 +46,16 @@ void CmdParse_DestroyList(CmdFuncList_t *list)
 void CmdParse_AddCallback(CmdFuncList_t list,const char *cmd, Cmd_Callback call)
 {
 	struct CmdFunc *element;
+	int size;
 
+	element = &list->func_list[0];
 	if ( list->allocated == list->size )
 	{// make sure there is an empty slot
+		size = list->size * sizeof(struct CmdFunc);
+		fprintf(stderr,"Add new, %d, %d, %d %d\n", list->size, sizeof(struct CmdFunc), list->allocated, size);
 		list->func_list = realloc(list->func_list, (list->size * sizeof(struct CmdFunc)));
 		element = &list->func_list[list->size];
-		list->size++;
+		list->size += 1;
 	}
 	else
 	{
@@ -66,7 +64,9 @@ void CmdParse_AddCallback(CmdFuncList_t list,const char *cmd, Cmd_Callback call)
 			element++;
 	}
 	element->cmd = cmd;
+		fprintf(stderr,"Add Func\n");
 	element->func = call;
+		fprintf(stderr,"End Func\n");
 	list->allocated++;
 }
 
@@ -110,39 +110,43 @@ char *CmdParse_SkipChars(char *ptr)
 
 //	***************************************************************************
 //	***************************************************************************
-int CmdParse_ProcessString(const CmdFuncList_t list, char *string, int fd)
+int CmdParse_ProcessString(const  struct CmdFunc *table, char *string, int fd)
 {
 	struct CmdFunc *element;
 	char *cmd;
 	char *arg;
 	char *end;
-	int rv = -1, i;
+	int rv = 0;
 
-	end = strchr(string, '\r');
+	end = strchr(string, '\n');
 	if ( end != NULL )
 	{
+		printf("Line found");
 		*end++ = 0; // terminate this string.
 		cmd = CmdParse_SkipSpace(string);	// remove any preceding white space.
 
+		printf("Cmd: %s", cmd);
 		arg = strchr(string, ':');
 		if ( arg )
 		{
 			*arg++ = 0;
 			if ( *arg == 0 )
 				arg = NULL;
+			else
+				printf("Arg: %s", arg);
 		}
-
-		for ( i = 0; i < list->size; i++  )
+/*
+		element = (struct CmdFunc *)table;
+		while ( element->cmd )
 		{// scan list
-			element = &list->func_list[i] ;
-			if ( element->cmd == NULL )
-				break;
 			if ( strncmp(element->cmd, cmd, strlen(element->cmd)) == 0 )
 			{
 				rv = (*element->func)(fd, arg);
 				break;
 			}
+
 		}
+*/
 		memmove(string, end, strlen(end));
 	}
 	return rv;

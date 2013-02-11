@@ -9,6 +9,8 @@ PWM_Controller_PROGRAMS= PWM_Controller PWM_Test
 PWM_Controller_SOURCES= \
 	CmdParse.c \
 	CmdParse.h \
+	Command_List.c \
+	Command_List.h \
 	parson.c \
 	parson.h \
 	Serial.c \

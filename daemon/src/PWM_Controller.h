@@ -15,8 +15,10 @@ extern "C" {
 #define PWM_KEY_FILE	"/tmp/PWM_Controller.shmem"
 #define PWM_MEM_KEY 'R'
 
-#define PWM_NUM_CHANELS	16
-#define PWM_CON_SHM_SIZE	1024
+#define PWM_NUM_CHANELS			16
+#define PWM_CON_SHM_SIZE		1024
+
+#define PWM_FIRMWARE_SIZE		128
 
 typedef struct
 {
@@ -26,8 +28,10 @@ typedef struct
 	float ch[PWM_NUM_CHANELS];
 	float current;
 	float temperature;
-	char firmware[128];
+	char firmware[PWM_FIRMWARE_SIZE];
 } Pwm_Con_Mem;
+
+extern Pwm_Con_Mem *PWM_ptr;
 
 // *****************
 #ifdef __cplusplus
