@@ -213,6 +213,7 @@ int main(int argc, char *argv[])
 {
   int loop = 1;
 	int rv;
+	int length;
 
   openlog("PWM_Controller", LOG_PID , LOG_USER );
   syslog(LOG_NOTICE, "PWM_Controller Startup");
@@ -244,15 +245,17 @@ int main(int argc, char *argv[])
 		while ( Serial_fd >= 0 )
 		{
 			PWM_ptr->port_connected = 1;
+
 			// run receiver
-//			rv = Serial_ReadString(Serial_fd, SerialRead_Buf, SERIAL_BUF_SIZE);
-			rv = read(Serial_fd, SerialRead_Buf, SERIAL_BUF_SIZE);
+			length = strlen(SerialRead_Buf);
+			rv = read(Serial_fd, SerialRead_Buf + length, SERIAL_BUF_SIZE - length);
 			Check_Serial(rv);
+
 			if ( rv > 0 )
 			{
-				SerialRead_Buf[rv] = 0;
-				printf(">> %d, %s\n", rv, SerialRead_Buf);
-				SerialRead_Buf[0] = 0;
+				SerialRead_Buf[length + rv] = 0;
+				printf(">> %d, %d, %s\n", rv, strlen(SerialRead_Buf) , SerialRead_Buf);
+//				SerialRead_Buf[0] = 0;
 
 			}
 
