@@ -121,7 +121,7 @@ int Time(char *buf)
 int Update_Pwm(char *buf)
 {
 	char cmd[50];
-	int ch;
+	unsigned char ch;
 	int duty;
 
 	if ( buf == NULL )
@@ -133,17 +133,14 @@ int Update_Pwm(char *buf)
 	buf = Cmd_SkipSpace(Cmd_SkipChars(buf));
 	duty = atoi(buf);
 
-	if ( ch > PWM_NUM_CHANELS )
+	if ( ch >= PWM_NUM_CHANELS )
 	{// echo to expansion board.
 		csprintf(cmd,"pwm: %d %d\r\n", ch - PWM_NUM_CHANELS, duty );
 		U3_TxPuts(cmd);
-		return 0;
 	}
 	else
-	if ( ch > 0 )
-	{
 		PWM_SetDutyCycle(ch, duty);
-	}
+		
 	return 0;
 }
 
