@@ -249,16 +249,15 @@ int Expansion_Current(char *buf)
 }
 
 //*****************************************************************************
-/*
 int Read_Firmware(char *buf)
 {
-	char cmd[50];
+	char cmd[100];
 
-	csprintf(cmd,"Firmware - To do\r\n" );
+	csprintf(cmd, "Firmware: %S, %S, %S\r\n", Firmware_Version, Firmware_Time, Firmware_Date );
 	U1_TxPuts(cmd);
 	return 0;
 }
-*/
+
 //*****************************************************************************
 int Restart(char *buf)
 {
@@ -275,7 +274,7 @@ const struct cmdtable USB_CmdTable[] =
 	"temp",				&System_Temp,
 	"current",		&System_Current,
 	"update",			&Update_Rate,
-//	"firmware",		&Read_Firmware,
+	"firmware",		&Read_Firmware,
 	"restart",		&Restart,
 	NULL,					NULL
 };

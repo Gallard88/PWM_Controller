@@ -143,15 +143,6 @@ void IO_Init(void)
 }
 
 // *****************************************************************************
-void Print_Version(void)
-{
-	char buffer[100];
-
-	csprintf(buffer, "Firmware: %S, %S, %S\r\n", Firmware_Version, Firmware_Time, Firmware_Date );
-	U1_TxPuts(buffer);
-}
-
-// *****************************************************************************
 void WDT_Prescaler_Change(void)
 {
   asm(" cli");
@@ -198,12 +189,10 @@ int main( void )
 	// RTC Clock  - To do
 
 	//-----------------------------------------------
-	// Run main loop.
-	Print_Version();
+	Read_Firmware(NULL);
 	PORTC ^= 0x1;
 	
-//	PORTL |= 0xFF;
-	
+	// Run main loop.
 	for ( ; ; )
 	{
 		asm(" sei");

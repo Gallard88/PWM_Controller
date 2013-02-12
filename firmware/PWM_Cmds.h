@@ -16,6 +16,11 @@
 void PWM_Cmds_Init(void);
 void PWM_Cmds_Run(void);
 
+int Read_Firmware(char *buf);
+extern const char Firmware_Version[];
+extern const char Firmware_Date[];
+extern const char Firmware_Time[];
+
 //*****************************************************************************
 extern int Ext_Current;
 
