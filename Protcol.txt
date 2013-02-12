@@ -34,16 +34,6 @@ Updates the PWM register ch directly with duty.
 e.g. "pwm 1 30%".
 
 ----------------------------------------
-ramp: [ch] [duty%]
-Ramps up/down ch to duty according to settings stored in eeprom.
-* This command not yet implemented *
-
-set_ramp: [ch] [rise, max change (%)] [fall, max change (%)]
-Sets the max ammount ch can change while tracking to new duty cycle.
-Setting stored in eeprom.
-* This command not yet implemented *
-
-----------------------------------------
 time: [time stamp]
 
 Read/Write time in clock chip.
