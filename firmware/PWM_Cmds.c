@@ -202,29 +202,32 @@ int Update_Rate(char *buf)
 	{
 		EEprom_Write_2(EE_TEMP_UPDATE, rate);
 		U1_TxPutsf("Temp updated");
-  	return 0;
+		return 0;
 	}
 	else
 	if ( cstrcmp("current", module ) == 0 )
 	{
 		EEprom_Write_2(EE_CURRENT_UPDATE, rate);
 		U1_TxPutsf("Current updated");
-  	return 0;
+  		return 0;
 	}
 	if ( cstrcmp("volt", module ) == 0 )
 	{
 		EEprom_Write_2(EE_VOLT_UPDATE, rate);
 		U1_TxPutsf("Volt updated");
-  	return 0;
+		return 0;
 	}
+	U3_TxPutsf("update: volt 0\r\n");
+	U3_TxPutsf("update: current 1\r\n");
+	U3_TxPutsf("update: temp 0\r\n");
 	return -1;
 }
 
 //*****************************************************************************
 int Expansion_Current(char *buf)
 {
-/*
   int value;
+  char cmd[50];
   
   if ( buf == NULL )
     return -1;
@@ -242,7 +245,6 @@ int Expansion_Current(char *buf)
 
   value = (value * 10) + atoi(buf);
   Ext_Current = value;
-*/  
   return 0;
 }
 
@@ -296,7 +298,11 @@ void Run_Current_Sensor(void)
   if (( time > 0 ) && ( Current_Update_Timer > time ))
   {
     Current_Update_Timer = 0;
-    value = Curr_AVG.average;
+	if ( Curr_AVG.average < 0 )
+	   value = 0;
+	else
+	   value = Curr_AVG.average;
+	value += Ext_Current;
     csprintf(cmd,"current: %d.%d\r\n", value /10, value %10);
     U1_TxPuts(cmd);
   }
