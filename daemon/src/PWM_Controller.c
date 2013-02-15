@@ -155,6 +155,8 @@ void Connect_To_Port(void)
 	// send current update rate
 	Send_CurrentData(Serial_fd, J_Object);
 
+	Send_VoltData(Serial_fd, J_Object);
+
 	// force unit to restart
 	Send_Restart(Serial_fd);
 }
@@ -256,7 +258,12 @@ int main(int argc, char *argv[])
 	Setup_Timer();
 //  Cmd_List = CmdParse_CreateFuncList();
 //	Build_CmdList(Cmd_List);
-  daemon( 0, 0 );
+  rv = daemon( 0, 0 );
+	if ( rv < 0 )
+	{
+		syslog(LOG_EMERG, "Daemonise failed" );
+		exit(-1);
+	}
 	Setup_SignalHandler();
 
 	while ( loop > 0 )
