@@ -65,20 +65,35 @@ int Create_Shared_Memory( void )
 // *****************
 int main( int argc, char *argv[] )
 {
-	int i;
+	unsigned int i;
+	float duty;
 
 	Create_Shared_Memory();
+
+	if ( argc == 3 )
+	{
+		pthread_mutex_lock( &PWM_ptr->access );
+		i = atoi(argv[1]);
+		if ( i < PWM_NUM_CHANELS )
+		{
+			duty = atof(argv[2]);
+			PWM_ptr->ch[i] = duty;
+			printf("PWM Set: %d = %1.2f\n", i, duty);
+			PWM_ptr->data_ready = 1;
+		}
+		pthread_mutex_unlock( &PWM_ptr->access );
+	}
 
 
   pthread_mutex_lock( &PWM_ptr->access );
 	printf("Hardware %s\n", PWM_ptr->port_connected ? "Connected" : "Disconnected");
-	printf("Current %2.2f\n", PWM_ptr->current);
-	printf("Voltage %2.2f\n", PWM_ptr->voltage);
-	printf("Temp:   %2.2f\n", PWM_ptr->temperature);
+	printf("Current %1.2f\n", PWM_ptr->current);
+	printf("Voltage %1.2f\n", PWM_ptr->voltage);
+	printf("Temp:   %1.2f\n", PWM_ptr->temperature);
 
 	for ( i = 0; i < PWM_NUM_CHANELS; i ++)
 	{
-		printf("Ch %d: %f\n", i, PWM_ptr->ch[i]);
+		printf("Ch %2d: %1.2f\n", i, PWM_ptr->ch[i]);
 	}
   pthread_mutex_unlock( &PWM_ptr->access );
 
