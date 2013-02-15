@@ -84,9 +84,10 @@ void Run_External_Serial(void)
 		rv = U3_RxGetLine( Ext_LineBuf + size,  LINEBUF_SIZE - size );
 		if ( rv < 0 )
 			Ext_LineBuf[0] = 0;
-		else
+		else if ( rv > 0 )
 		{
 			Cmd_Lookup(Ext_CmdTable, Ext_LineBuf);
+	 		Ext_LineBuf[0] = 0;
 		}
 	}
 	while ( rv != 0 );
@@ -142,15 +143,6 @@ void IO_Init(void)
 }
 
 // *****************************************************************************
-void Print_Version(void)
-{
-	char buffer[100];
-
-	csprintf(buffer, "Firmware: %S, %S, %S\r\n", Firmware_Version, Firmware_Time, Firmware_Date );
-	U1_TxPuts(buffer);
-}
-
-// *****************************************************************************
 void WDT_Prescaler_Change(void)
 {
   asm(" cli");
@@ -197,12 +189,10 @@ int main( void )
 	// RTC Clock  - To do
 
 	//-----------------------------------------------
-	// Run main loop.
-	Print_Version();
+	Read_Firmware(NULL);
 	PORTC ^= 0x1;
 	
-//	PORTL |= 0xFF;
-	
+	// Run main loop.
 	for ( ; ; )
 	{
 		asm(" sei");

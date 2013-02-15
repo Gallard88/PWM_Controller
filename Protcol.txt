@@ -6,6 +6,78 @@ current: Controls how often the system current is printed.
 volt: controls how often the system voltage is printed.
 
 ----------------------------------------
-temp: d\r\n = system temp.
-current: d.d\r\n = system current.
-volt: d.d\r\n = system voltage.
+"temp: d\r\n" = system temp.
+"current: d.d\r\n" = total system current.
+"volt: d.d\r\n" = system voltage.
+
+----------------------------------------
+clear_current:
+Calculates and sets the DC offset for the current sensor.
+* Note for this to be accurate all output chanels must be set to 0.
+* This command not yet implemented *
+
+----------------------------------------
+restart:
+Forces a hard restart of the hardware.
+
+----------------------------------------
+firmware 
+Prints the system firmware.
+
+exp_firm 
+Prints the firmware of the expansion board. If board does not exist, prints "firmware: missing"
+* This command not yet implemented *
+
+----------------------------------------
+pwm: [ch] [duty%]
+Updates the PWM register ch directly with duty.
+e.g. "pwm 1 30%".
+
+----------------------------------------
+time: [time stamp]
+
+Read/Write time in clock chip.
+Format is: HH:MM:SS DD/MMM/YYYY
+* This command not yet implemented *
+
+----------------------------------------
+temp_lim: [limit]
+Sets the maximum temperature before the system shutdown all outputs.
+Once triggered, sets alarm condition.
+* This command not yet implemented *
+
+----------------------------------------
+Current_lim: [limit]
+Sets the maximum current before the system shutdown all outputs.
+Once triggered, sets alarm condition.
+* This command not yet implemented *
+
+----------------------------------------
+Volt_Max: [limit]
+Sets the maximum Voltage before the system shutdown all outputs.
+Once triggered, sets alarm condition.
+* This command not yet implemented *
+
+----------------------------------------
+Volt_Min: [limit]
+Sets the minimum Voltage before the system shutdown all outputs.
+Once triggered, sets alarm condition.
+* This command not yet implemented *
+
+----------------------------------------
+Coms_Timeout: [seconds]
+Sets the maximum ammount of time with out comms from the host system before the system shuts down all outputs.
+Once triggered, sets alarm condition.
+* This command not yet implemented *
+
+----------------------------------------
+Alarms:
+Prints all active alarms.
+- Volt_Max
+- Volt_Min
+- Current_Lim
+- Temp_Lim
+All alarms are latching and can only be clear be a restart command.
+* This command not yet implemented *
+
+----------------------------------------

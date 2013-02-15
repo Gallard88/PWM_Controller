@@ -121,7 +121,7 @@ int Time(char *buf)
 int Update_Pwm(char *buf)
 {
 	char cmd[50];
-	int ch;
+	unsigned char ch;
 	int duty;
 
 	if ( buf == NULL )
@@ -133,17 +133,14 @@ int Update_Pwm(char *buf)
 	buf = Cmd_SkipSpace(Cmd_SkipChars(buf));
 	duty = atoi(buf);
 
-	if ( ch > PWM_NUM_CHANELS )
+	if ( ch >= PWM_NUM_CHANELS )
 	{// echo to expansion board.
 		csprintf(cmd,"pwm: %d %d\r\n", ch - PWM_NUM_CHANELS, duty );
 		U3_TxPuts(cmd);
-		return 0;
 	}
 	else
-	if ( ch > 0 )
-	{
 		PWM_SetDutyCycle(ch, duty);
-	}
+		
 	return 0;
 }
 
@@ -202,29 +199,32 @@ int Update_Rate(char *buf)
 	{
 		EEprom_Write_2(EE_TEMP_UPDATE, rate);
 		U1_TxPutsf("Temp updated");
-  	return 0;
+		return 0;
 	}
 	else
 	if ( cstrcmp("current", module ) == 0 )
 	{
 		EEprom_Write_2(EE_CURRENT_UPDATE, rate);
 		U1_TxPutsf("Current updated");
-  	return 0;
+  		return 0;
 	}
 	if ( cstrcmp("volt", module ) == 0 )
 	{
 		EEprom_Write_2(EE_VOLT_UPDATE, rate);
 		U1_TxPutsf("Volt updated");
-  	return 0;
+		return 0;
 	}
+	U3_TxPutsf("update: volt 0\r\n");
+	U3_TxPutsf("update: current 1\r\n");
+	U3_TxPutsf("update: temp 0\r\n");
 	return -1;
 }
 
 //*****************************************************************************
 int Expansion_Current(char *buf)
 {
-/*
   int value;
+  char cmd[50];
   
   if ( buf == NULL )
     return -1;
@@ -242,21 +242,19 @@ int Expansion_Current(char *buf)
 
   value = (value * 10) + atoi(buf);
   Ext_Current = value;
-*/  
   return 0;
 }
 
 //*****************************************************************************
-/*
 int Read_Firmware(char *buf)
 {
-	char cmd[50];
+	char cmd[100];
 
-	csprintf(cmd,"Firmware - To do\r\n" );
+	csprintf(cmd, "Firmware: %S, %S, %S\r\n", Firmware_Version, Firmware_Time, Firmware_Date );
 	U1_TxPuts(cmd);
 	return 0;
 }
-*/
+
 //*****************************************************************************
 int Restart(char *buf)
 {
@@ -273,7 +271,7 @@ const struct cmdtable USB_CmdTable[] =
 	"temp",				&System_Temp,
 	"current",		&System_Current,
 	"update",			&Update_Rate,
-//	"firmware",		&Read_Firmware,
+	"firmware",		&Read_Firmware,
 	"restart",		&Restart,
 	NULL,					NULL
 };
@@ -296,7 +294,11 @@ void Run_Current_Sensor(void)
   if (( time > 0 ) && ( Current_Update_Timer > time ))
   {
     Current_Update_Timer = 0;
-    value = Curr_AVG.average;
+	if ( Curr_AVG.average < 0 )
+	   value = 0;
+	else
+	   value = Curr_AVG.average;
+	value += Ext_Current;
     csprintf(cmd,"current: %d.%d\r\n", value /10, value %10);
     U1_TxPuts(cmd);
   }
