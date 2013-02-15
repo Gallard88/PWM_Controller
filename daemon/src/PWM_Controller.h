@@ -12,12 +12,7 @@ extern "C" {
 // *****************
 #include <pthread.h>
 
-#define PWM_KEY_FILE	"/tmp/PWM_Controller.shmem"
-#define PWM_MEM_KEY 'R'
-
 #define PWM_NUM_CHANELS			16
-#define PWM_CON_SHM_SIZE		2048
-
 #define PWM_FIRMWARE_SIZE		128
 
 typedef struct
@@ -33,6 +28,11 @@ typedef struct
 } Pwm_Con_Mem;
 
 extern Pwm_Con_Mem *PWM_ptr;
+
+// *****************
+#define PWM_CON_SHM_SIZE		sizeof(Pwm_Con_Mem)
+#define PWM_KEY_FILE	"/tmp/PWM_Controller.shmem"
+#define PWM_MEM_KEY 'R'
 
 // *****************
 #ifdef __cplusplus

@@ -25,7 +25,6 @@
 
 // *****************
 const char PWM_Con_Settings_file[] = "PWM_Controller.conf";
-#define SHM_SIZE	sizeof(Pwm_Con_Mem)
 
 Pwm_Con_Mem *PWM_ptr;
 JSON_Value *JSON_Settings;
@@ -70,7 +69,7 @@ int Create_Shared_Memory( void )
   }
 
   // connect to (and possibly create) the segment:
-  if ((shmid = shmget(key, SHM_SIZE, 0644 | IPC_CREAT)) == -1)
+  if ((shmid = shmget(key, PWM_CON_SHM_SIZE, 0644 | IPC_CREAT)) == -1)
   {
     perror("shmget");
     exit(1);
