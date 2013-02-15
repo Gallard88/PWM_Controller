@@ -253,6 +253,7 @@ int main(int argc, char *argv[])
 //  Cmd_List = CmdParse_CreateFuncList();
 //	Build_CmdList(Cmd_List);
   daemon( 0, 0 );
+	Setup_SignalHandler();
 
 	while ( loop > 0 )
 	{
