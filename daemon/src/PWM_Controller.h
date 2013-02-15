@@ -16,7 +16,7 @@ extern "C" {
 #define PWM_MEM_KEY 'R'
 
 #define PWM_NUM_CHANELS			16
-#define PWM_CON_SHM_SIZE		1024
+#define PWM_CON_SHM_SIZE		2048
 
 #define PWM_FIRMWARE_SIZE		128
 
@@ -26,6 +26,7 @@ typedef struct
 	unsigned data_ready:1;
 	unsigned port_connected:1;
 	float ch[PWM_NUM_CHANELS];
+	float voltage;
 	float current;
 	float temperature;
 	char firmware[PWM_FIRMWARE_SIZE];

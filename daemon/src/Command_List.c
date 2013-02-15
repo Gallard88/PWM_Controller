@@ -106,7 +106,23 @@ int Receive_Current(int fd, char *buf)
 		pthread_mutex_lock( &PWM_ptr->access );
 
 		PWM_ptr->current = atof(ptr);
-		printf("Current %f\n", PWM_ptr->current );
+
+		pthread_mutex_unlock( &PWM_ptr->access );
+	}
+	return 1;
+}
+
+// *****************
+int Receive_Voltage(int fd, char *buf)
+{
+	char *ptr;
+
+	if ( buf )
+	{
+		ptr = CmdParse_SkipSpace(buf);
+		pthread_mutex_lock( &PWM_ptr->access );
+
+		PWM_ptr->voltage = atof(ptr);
 
 		pthread_mutex_unlock( &PWM_ptr->access );
 	}
@@ -124,7 +140,6 @@ int Receive_Temp(int fd, char *buf)
 		pthread_mutex_lock( &PWM_ptr->access );
 
 		PWM_ptr->temperature = atof(ptr);
-		printf("Temp %f\n", PWM_ptr->current );
 
 		pthread_mutex_unlock( &PWM_ptr->access );
 	}
@@ -154,6 +169,7 @@ int Receive_Firmware(int fd, char *buf)
 const struct CmdFunc Cmd_Table[] =
 {
 	{ "time",				&Receive_Time },
+	{ "volt",				&Receive_Voltage },
 	{ "current",		&Receive_Current },
 	{ "temp",				&Receive_Temp },
 	{ "firmware",		&Receive_Firmware },
