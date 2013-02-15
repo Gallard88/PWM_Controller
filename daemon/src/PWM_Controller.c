@@ -215,6 +215,25 @@ void Setup_Timer(void)
 }
 
 // *****************
+void Run_CtrlC(int sig)
+{
+	exit(0);
+}
+
+// *****************
+void Setup_SignalHandler(void)
+{
+  struct sigaction sig;
+
+	// Install timer_handler as the signal handler for SIGVTALRM.
+  memset (&sig, 0, sizeof (struct sigaction));
+  sig.sa_handler = &Run_CtrlC;
+  sigaction (SIGINT , &sig, NULL);
+  sigaction (SIGTERM , &sig, NULL);
+  sigaction (SIGABRT , &sig, NULL);
+}
+
+// *****************
 int main(int argc, char *argv[])
 {
   int loop = 1;
