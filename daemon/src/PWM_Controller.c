@@ -37,6 +37,8 @@ char SerialRead_Buf[SERIAL_BUF_SIZE];
 
 //CmdFuncList_t Cmd_List;
 
+#define SYSTEM_DELAY	10000
+const struct timeval system_time = {0,SYSTEM_DELAY};
 
 // *****************
 void System_Shutdown(void)
@@ -239,6 +241,8 @@ int main(int argc, char *argv[])
   int loop = 1;
 	int rv;
 	int length;
+	fd_set readfds;
+	struct timeval select_time;
 
   openlog("PWM_Controller", LOG_PID , LOG_USER );
   syslog(LOG_NOTICE, "PWM_Controller Startup");
@@ -264,17 +268,28 @@ int main(int argc, char *argv[])
 		{
 			PWM_ptr->port_connected = 1;
 
-			// run receiver
-			length = strlen(SerialRead_Buf);
-			rv = read(Serial_fd, SerialRead_Buf + length, SERIAL_BUF_SIZE - length);
-			Check_Serial(rv);
+			FD_ZERO(&readfds);
+			FD_SET(Serial_fd, &readfds);
+			select_time = system_time;
 
-			if ( rv > 0 )
+      rv = select(Serial_fd+1, &readfds, NULL, NULL, &select_time);	// wait indefinately
+			if ( rv < 0 )
+				continue;
+
+      if ( FD_ISSET(Serial_fd, &readfds) )
 			{
-				SerialRead_Buf[length + rv] = 0;
-				while ( rv >= 0 )
+				// run receiver
+				length = strlen(SerialRead_Buf);
+				rv = read(Serial_fd, SerialRead_Buf + length, SERIAL_BUF_SIZE - length);
+				Check_Serial(rv);
+
+				if ( rv > 0 )
 				{
-					rv = CmdParse_ProcessString(Cmd_Table, SerialRead_Buf, Serial_fd);
+					SerialRead_Buf[length + rv] = 0;
+					while ( rv >= 0 )
+					{
+						rv = CmdParse_ProcessString(Cmd_Table, SerialRead_Buf, Serial_fd);
+					}
 				}
 			}
 		}
