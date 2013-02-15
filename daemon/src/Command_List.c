@@ -92,7 +92,7 @@ int Send_PWMChanelData(int fd, int ch, float duty)
   int rv;
   char cmd[100];
 
-  sprintf(cmd, "pwm: %d %f", ch, duty);
+  sprintf(cmd, "pwm: %d %f", ch, duty*100);
   rv = write(fd, cmd, strlen(cmd) );
   return rv;
 }
