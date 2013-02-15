@@ -71,6 +71,7 @@ int main( int argc, char *argv[] )
 
 
   pthread_mutex_lock( &PWM_ptr->access );
+	printf("Hardware %s\n", PWM_ptr->port_connected ? "Connected" : "Disconnected");
 	printf("Current %2.2f\n", PWM_ptr->current);
 	printf("Voltage %2.2f\n", PWM_ptr->voltage);
 	printf("Temp:   %2.2f\n", PWM_ptr->temperature);
