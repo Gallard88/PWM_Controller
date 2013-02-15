@@ -7,6 +7,8 @@ PWM_Controllerdir=/usr/bin/
 PWM_Controller_PROGRAMS= PWM_Controller PWM_Test
 
 include_HEADERS= PWM_Controller.h
+PWM_Filesdir= /etc
+PWM_Files_DATA= PWM_Controller.conf
 
 PWM_Controller_SOURCES= \
 	CmdParse.c \

@@ -17,6 +17,7 @@
 
 
 
+
 pkgdatadir = $(datadir)/pwm_controller
 pkgincludedir = $(includedir)/pwm_controller
 pkglibdir = $(libdir)/pwm_controller
@@ -46,7 +47,7 @@ CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(PWM_Controllerdir)" \
-	"$(DESTDIR)$(includedir)"
+	"$(DESTDIR)$(PWM_Filesdir)" "$(DESTDIR)$(includedir)"
 PROGRAMS = $(PWM_Controller_PROGRAMS)
 am_PWM_Controller_OBJECTS = CmdParse.$(OBJEXT) Command_List.$(OBJEXT) \
 	parson.$(OBJEXT) Serial.$(OBJEXT) PWM_Controller.$(OBJEXT)
@@ -92,6 +93,7 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
+DATA = $(PWM_Files_DATA)
 HEADERS = $(include_HEADERS)
 ETAGS = etags
 CTAGS = ctags
@@ -187,6 +189,8 @@ AM_CFLAGS = --pedantic -Wall  -std=c99
 # the previous manual Makefile
 PWM_Controllerdir = /usr/bin/
 include_HEADERS = PWM_Controller.h
+PWM_Filesdir = /etc
+PWM_Files_DATA = PWM_Controller.conf
 PWM_Controller_SOURCES = \
 	CmdParse.c \
 	CmdParse.h \
@@ -307,6 +311,24 @@ include ./$(DEPDIR)/parson.Po
 #	source='$<' object='$@' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(COMPILE) -c `$(CYGPATH_W) '$<'`
+install-PWM_FilesDATA: $(PWM_Files_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(PWM_Filesdir)" || $(MKDIR_P) "$(DESTDIR)$(PWM_Filesdir)"
+	@list='$(PWM_Files_DATA)'; test -n "$(PWM_Filesdir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(PWM_Filesdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(PWM_Filesdir)" || exit $$?; \
+	done
+
+uninstall-PWM_FilesDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(PWM_Files_DATA)'; test -n "$(PWM_Filesdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(PWM_Filesdir)'; $(am__uninstall_files_from_dir)
 install-includeHEADERS: $(include_HEADERS)
 	@$(NORMAL_INSTALL)
 	test -z "$(includedir)" || $(MKDIR_P) "$(DESTDIR)$(includedir)"
@@ -410,9 +432,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(PROGRAMS) $(HEADERS)
+all-am: Makefile $(PROGRAMS) $(DATA) $(HEADERS)
 installdirs:
-	for dir in "$(DESTDIR)$(PWM_Controllerdir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(PWM_Controllerdir)" "$(DESTDIR)$(PWM_Filesdir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -467,7 +489,8 @@ info: info-am
 
 info-am:
 
-install-data-am: install-PWM_ControllerPROGRAMS install-includeHEADERS
+install-data-am: install-PWM_ControllerPROGRAMS install-PWM_FilesDATA \
+	install-includeHEADERS
 
 install-dvi: install-dvi-am
 
@@ -512,7 +535,7 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-PWM_ControllerPROGRAMS \
+uninstall-am: uninstall-PWM_ControllerPROGRAMS uninstall-PWM_FilesDATA \
 	uninstall-includeHEADERS
 
 .MAKE: install-am install-strip
@@ -521,15 +544,16 @@ uninstall-am: uninstall-PWM_ControllerPROGRAMS \
 	clean-PWM_ControllerPROGRAMS clean-generic ctags distclean \
 	distclean-compile distclean-generic distclean-tags distdir dvi \
 	dvi-am html html-am info info-am install \
-	install-PWM_ControllerPROGRAMS install-am install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am \
-	install-includeHEADERS install-info install-info-am \
-	install-man install-pdf install-pdf-am install-ps \
-	install-ps-am install-strip installcheck installcheck-am \
-	installdirs maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic pdf pdf-am \
-	ps ps-am tags uninstall uninstall-PWM_ControllerPROGRAMS \
+	install-PWM_ControllerPROGRAMS install-PWM_FilesDATA \
+	install-am install-data install-data-am install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-includeHEADERS install-info \
+	install-info-am install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic pdf pdf-am ps ps-am tags uninstall \
+	uninstall-PWM_ControllerPROGRAMS uninstall-PWM_FilesDATA \
 	uninstall-am uninstall-includeHEADERS
 
 

@@ -24,7 +24,7 @@
 #include "Command_List.h"
 
 // *****************
-const char PWM_Con_Settings_file[] = "PWM_Controller.conf";
+const char PWM_Con_Settings_file[] = "/etc/PWM_Controller.conf";
 
 Pwm_Con_Mem *PWM_ptr;
 JSON_Value *JSON_Settings;
