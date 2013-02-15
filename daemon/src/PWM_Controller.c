@@ -41,15 +41,22 @@ char SerialRead_Buf[SERIAL_BUF_SIZE];
 // *****************
 void System_Shutdown(void)
 {
-  // detach from the segment:
+	PWM_ptr->data_ready = 0;
+	PWM_ptr->port_connected = 0;
+	PWM_ptr->voltage = 0;
+	PWM_ptr->current = 0;
+	PWM_ptr->temperature = 0;
+	PWM_ptr->firmware[0] = 0;
+
+	// detach from the segment:
   if (shmdt(PWM_ptr) == -1)
-    perror("shmdt");
+		syslog(LOG_EMERG, "shmdt()");
   syslog(LOG_EMERG, "System shutting down");
 	closelog();
 }
 
 // *****************
-int Create_Shared_Memory( void )
+void Create_Shared_Memory( void )
 {
   key_t key;
   int shmid;
@@ -64,14 +71,14 @@ int Create_Shared_Memory( void )
   key = ftok(PWM_KEY_FILE, PWM_MEM_KEY);
   if (key  == -1)
   {
-    perror("ftok");
+		syslog(LOG_EMERG, "ftok()");
     exit(1);
   }
 
   // connect to (and possibly create) the segment:
   if ((shmid = shmget(key, PWM_CON_SHM_SIZE, 0644 | IPC_CREAT)) == -1)
   {
-    perror("shmget");
+		syslog(LOG_EMERG, "shmget()");
     exit(1);
   }
 
@@ -79,12 +86,11 @@ int Create_Shared_Memory( void )
   PWM_ptr = shmat(shmid, (void *)0, 0);
   if ((char *)PWM_ptr == (char *)(-1))
   {
-    perror("shmat");
+		syslog(LOG_EMERG, "shmat()");
     exit(1);
   }
 
   pthread_mutex_init(&PWM_ptr->access, NULL);
-  return 0;
 }
 
 // *****************
@@ -92,7 +98,6 @@ void Check_Serial(int rv)
 {
   if ( rv < 0 )
   {
-		perror("Serial");
     PWM_ptr->port_connected = 0;
     Serial_fd = Serial_ClosePort(Serial_fd);
     syslog(LOG_EMERG, "Serial coms lost, %d", errno);
@@ -109,17 +114,16 @@ void Read_Settings(void)
 
   if ( rv != JSONObject )
 	{
-		printf("System didn't work, %d\n", rv );
+		syslog(LOG_EMERG, "JSON data incorrect, %d\n", rv );
     exit( -1);
   }
 
   J_Object = json_value_get_object(JSON_Settings);
 	if ( J_Object == NULL )
 	{
-		printf("JSON_Object == NULL\n");
+		syslog(LOG_EMERG, "JSON: Failed to get object" );
 		exit( -1);
 	}
-	printf("Opening Serial Port: %s\n", json_object_get_string(J_Object, "Serial_Port"));
 }
 
 // *****************
@@ -137,6 +141,7 @@ void Connect_To_Port(void)
 	if ( Serial_fd < 0 )
 		return;
 	syslog(LOG_NOTICE, "Com Port %s connected", name);
+
 	// send start up commands.
 	// read time
 	Send_GetTime(Serial_fd);
@@ -167,7 +172,7 @@ void RunTimer(int sig)
   if (( tv.tv_sec - write_time ) > 3600)
   {// here once an hour
     write_time = tv.tv_sec;
-		printf("sending system time\n");
+		syslog(LOG_DEBUG, "Sending Time data" );
 		rv = Send_SystemTime(Serial_fd, write_time);
     Check_Serial(rv);
   }
@@ -175,7 +180,7 @@ void RunTimer(int sig)
   pthread_mutex_lock( &PWM_ptr->access );
   if ( PWM_ptr->data_ready )
   {
-		printf("sending PWM data\n");
+		syslog(LOG_DEBUG, "Sending PWM data" );
 
 		for ( i = 0; i < PWM_NUM_CHANELS; i++ )
 		{
@@ -223,27 +228,16 @@ int main(int argc, char *argv[])
 	// register shutdown function.
 	atexit(System_Shutdown);
 
-//  printf("become a daemon\n");
-//  daemon( 0, 0 );
-
-  printf("create shared memory\n");
-  if ( Create_Shared_Memory() < 0 )
-  {
-    printf("Shared Memory failed\n");
-    exit(-1);
-  }
-
+  Create_Shared_Memory();
+	Read_Settings();
+	Setup_Timer();
 //  Cmd_List = CmdParse_CreateFuncList();
 //	Build_CmdList(Cmd_List);
-
-  printf("Read Settings\n");
-	Read_Settings();
-
-	Setup_Timer();
+  daemon( 0, 0 );
 
 	while ( loop > 0 )
 	{
-		printf("Open Serial port\n");
+		syslog(LOG_DEBUG, "Trying to open Serial port"  );
 
 		Connect_To_Port();
 		while ( Serial_fd >= 0 )
@@ -264,11 +258,8 @@ int main(int argc, char *argv[])
 				}
 			}
 		}
-		printf("Port Coms lost\n");
-		break;
 		sleep(10);
 	}
-
   return 0;
 }
 

@@ -3,8 +3,10 @@ AM_CFLAGS = --pedantic -Wall  -std=c99
 #LDFLAGS =
 # this lists the binaries to produce, the (non-PHONY, binary) targets in
 # the previous manual Makefile
-PWM_Controllerdir=../
+PWM_Controllerdir=/usr/bin/
 PWM_Controller_PROGRAMS= PWM_Controller PWM_Test
+
+include_HEADERS= PWM_Controller.h
 
 PWM_Controller_SOURCES= \
 	CmdParse.c \

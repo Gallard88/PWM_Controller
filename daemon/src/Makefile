@@ -16,6 +16,7 @@
 
 
 
+
 pkgdatadir = $(datadir)/pwm_controller
 pkgincludedir = $(includedir)/pwm_controller
 pkglibdir = $(libdir)/pwm_controller
@@ -34,7 +35,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 PWM_Controller_PROGRAMS = PWM_Controller$(EXEEXT) PWM_Test$(EXEEXT)
 subdir = src
-DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
+DIST_COMMON = $(include_HEADERS) $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -43,7 +45,8 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__installdirs = "$(DESTDIR)$(PWM_Controllerdir)"
+am__installdirs = "$(DESTDIR)$(PWM_Controllerdir)" \
+	"$(DESTDIR)$(includedir)"
 PROGRAMS = $(PWM_Controller_PROGRAMS)
 am_PWM_Controller_OBJECTS = CmdParse.$(OBJEXT) Command_List.$(OBJEXT) \
 	parson.$(OBJEXT) Serial.$(OBJEXT) PWM_Controller.$(OBJEXT)
@@ -62,6 +65,34 @@ CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(PWM_Controller_SOURCES) $(PWM_Test_SOURCES)
 DIST_SOURCES = $(PWM_Controller_SOURCES) $(PWM_Test_SOURCES)
+am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+am__vpath_adj = case $$p in \
+    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+    *) f=$$p;; \
+  esac;
+am__strip_dir = f=`echo $$p | sed -e 's|^.*/||'`;
+am__install_max = 40
+am__nobase_strip_setup = \
+  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`
+am__nobase_strip = \
+  for p in $$list; do echo "$$p"; done | sed -e "s|$$srcdirstrip/||"
+am__nobase_list = $(am__nobase_strip_setup); \
+  for p in $$list; do echo "$$p $$p"; done | \
+  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
+  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
+    if (++n[$$2] == $(am__install_max)) \
+      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
+    END { for (dir in files) print dir, files[dir] }'
+am__base_list = \
+  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
+  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
+am__uninstall_files_from_dir = { \
+  test -z "$$files" \
+    || { test ! -d "$$dir" && test ! -f "$$dir" && test ! -r "$$dir"; } \
+    || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
+         $(am__cd) "$$dir" && rm -f $$files; }; \
+  }
+HEADERS = $(include_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -154,7 +185,8 @@ AM_CFLAGS = --pedantic -Wall  -std=c99
 #LDFLAGS =
 # this lists the binaries to produce, the (non-PHONY, binary) targets in
 # the previous manual Makefile
-PWM_Controllerdir = ../
+PWM_Controllerdir = /usr/bin/
+include_HEADERS = PWM_Controller.h
 PWM_Controller_SOURCES = \
 	CmdParse.c \
 	CmdParse.h \
@@ -275,6 +307,24 @@ include ./$(DEPDIR)/parson.Po
 #	source='$<' object='$@' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(COMPILE) -c `$(CYGPATH_W) '$<'`
+install-includeHEADERS: $(include_HEADERS)
+	@$(NORMAL_INSTALL)
+	test -z "$(includedir)" || $(MKDIR_P) "$(DESTDIR)$(includedir)"
+	@list='$(include_HEADERS)'; test -n "$(includedir)" || list=; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(includedir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(includedir)" || exit $$?; \
+	done
+
+uninstall-includeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(include_HEADERS)'; test -n "$(includedir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(includedir)'; $(am__uninstall_files_from_dir)
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
@@ -360,9 +410,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(PROGRAMS)
+all-am: Makefile $(PROGRAMS) $(HEADERS)
 installdirs:
-	for dir in "$(DESTDIR)$(PWM_Controllerdir)"; do \
+	for dir in "$(DESTDIR)$(PWM_Controllerdir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -417,7 +467,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-PWM_ControllerPROGRAMS
+install-data-am: install-PWM_ControllerPROGRAMS install-includeHEADERS
 
 install-dvi: install-dvi-am
 
@@ -462,7 +512,8 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-PWM_ControllerPROGRAMS
+uninstall-am: uninstall-PWM_ControllerPROGRAMS \
+	uninstall-includeHEADERS
 
 .MAKE: install-am install-strip
 
@@ -472,13 +523,14 @@ uninstall-am: uninstall-PWM_ControllerPROGRAMS
 	dvi-am html html-am info info-am install \
 	install-PWM_ControllerPROGRAMS install-am install-data \
 	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic pdf pdf-am ps ps-am tags uninstall \
-	uninstall-PWM_ControllerPROGRAMS uninstall-am
+	install-exec-am install-html install-html-am \
+	install-includeHEADERS install-info install-info-am \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic pdf pdf-am \
+	ps ps-am tags uninstall uninstall-PWM_ControllerPROGRAMS \
+	uninstall-am uninstall-includeHEADERS
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
