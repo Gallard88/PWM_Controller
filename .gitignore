@@ -30,7 +30,6 @@
 *.lk
 *.lst
 *.mp
-*.SRC
 *BACKUP*
 *.SchDocPreview
 *.PcbDocPreview
