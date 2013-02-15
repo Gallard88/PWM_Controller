@@ -259,14 +259,15 @@ int main(int argc, char *argv[])
 			if ( rv > 0 )
 			{
 				SerialRead_Buf[length + rv] = 0;
-//				printf("Raw: %s\n", SerialRead_Buf);
-				rv = CmdParse_ProcessString(Cmd_Table, SerialRead_Buf, Serial_fd);
-//				Check_Serial(rv);
+				while ( rv >= 0 )
+				{
+					rv = CmdParse_ProcessString(Cmd_Table, SerialRead_Buf, Serial_fd);
+				}
 			}
 		}
 		printf("Port Coms lost\n");
 		break;
-//		sleep(10);
+		sleep(10);
 	}
 
   return 0;

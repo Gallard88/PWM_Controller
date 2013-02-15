@@ -116,41 +116,37 @@ int CmdParse_ProcessString(const struct CmdFunc *table, char *string, int fd)
 	char *cmd;
 	char *arg;
 	char *end;
-	int rv = 0;
+	int rv = -1;
 
 	end = strchr(string, '\n');
 	if ( end != NULL )
 	{
-		printf("Line found\n");
-		*end++ = 0; // terminate this string.
+		*end = 0; // terminate this string.
+		end++;
 		cmd = CmdParse_SkipSpace(string);	// remove any preceding white space.
 
-		printf("Cmd: %s", cmd);
 		arg = strchr(string, ':');
 		if ( arg )
 		{
 			*arg++ = 0;
 			if ( *arg == 0 )
 				arg = NULL;
-			else
-				printf("Arg: %s", arg);
 		}
-/*
-		element = (struct CmdFunc *)table;
-		while ( element->cmd )
-		{// scan list
-			if ( strncmp(element->cmd, cmd, strlen(element->cmd)) == 0 )
-			{
-				rv = (*element->func)(fd, arg);
-				break;
+		if ( strlen(cmd) > 0 )
+		{
+			element = (struct CmdFunc *)table;
+			while ( element->cmd )
+			{// scan list
+				if ( strncmp(element->cmd, cmd, strlen(element->cmd)) == 0 )
+				{
+					rv = (*element->func)(fd, arg);
+					break;
+				}
+				element++;
 			}
-
 		}
-*/
-//		memmove(string, end, strlen(end));
+		memmove(string, end, strlen(end)+1);
 	}
-	else
-		printf("No Line\n");
 	return rv;
 }
 
