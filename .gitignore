@@ -38,7 +38,7 @@
 *Thumbs.db
 *autom4te*
 *.deps*
-*.in
+.in
 *Makefile
 *kate-swp
 *PWM_Controller
