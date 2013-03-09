@@ -35,6 +35,7 @@
 *.PcbDocPreview
 *.PcbDoc.htm
 *.pcbdoc_viewstate
+*.PrjPcb.Zip
 *Thumbs.db
 *autom4te*
 *.deps*

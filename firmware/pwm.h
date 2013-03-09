@@ -12,10 +12,6 @@ void PWM_Initialise(void);
 
 void PWM_SetDutyCycle(int ch, int duty);
 
-int PWM_isAlarm(void);
-void PWM_SetAlarm(int alm);
-void PWM_ClearAlarm(int alm);
-
 /******************************************/
 /******************************************/
 #endif

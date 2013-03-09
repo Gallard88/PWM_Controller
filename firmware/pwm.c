@@ -63,9 +63,6 @@ static void PWM_UpdateRegister(int ch, int value)
 		case 7:
 			OCR3A = value;
 			break;
-
-		default :
-			break;
 	}
 }
 
@@ -76,7 +73,7 @@ static void PWM_Clear(void)
 
 	for ( i = 0; i < PWM_NUM_CHANELS; i++ )
 	{// turn off all outputs.
-		PWM_UpdateRegister(i, 0);
+		PWM_SetDutyCycle(i, 0);
 	}
 }
 
@@ -91,41 +88,105 @@ static int PWM_RangeCheck(int duty)
 }
 
 /******************************************/
+static void PWM_Enable_Port(int ch)
+{
+	switch ( ch )
+	{
+		case 0:
+			TCCR5A |= (1<<COM5C1);
+			break;
+
+		case 1:
+			TCCR5A |= (1<<COM5B1);
+			break;
+
+		case 2:
+			TCCR5A |= (1<<COM5A1);
+			break;
+
+		case 3:
+			TCCR1A |= (1<<COM1B1);
+			break;
+
+		case 4:
+			TCCR1A |= (1<<COM1A1);
+			break;
+
+		case 5:
+			TCCR3A |= (1<<COM3C1);
+			break;
+
+		case 6:
+			TCCR3A |= (1<<COM3B1);
+			break;
+
+		case 7:
+			TCCR3A |= (1<<COM3A1);
+			break;
+	}
+}
+
+/******************************************/
+static void PWM_Disable_Port(int ch)
+{
+	switch ( ch )
+	{
+		case 0:
+			TCCR5A &= ~(1<<COM5C1);
+			PORTL &= ~(1<<5);
+			break;
+
+		case 1:
+			TCCR5A &= ~(1<<COM5B1);
+			PORTL &= ~(1<<4);
+			break;
+
+		case 2:
+			TCCR5A &= ~(1<<COM5A1);
+			PORTL &= ~(1<<3);
+			break;
+
+		case 3:
+			TCCR1A &= ~(1<<COM1B1);
+			PORTB &= ~(1<<6);
+			break;
+
+		case 4:
+			TCCR1A &= ~(1<<COM1A1);
+			PORTB &= ~(1<<5);
+			break;
+
+		case 5:
+			TCCR3A &= ~(1<<COM3C1);
+			PORTE &= ~(1<<5);
+			break;
+
+		case 6:
+			TCCR3A &= ~(1<<COM3B1);
+			PORTE &= ~(1<<4);
+			break;
+
+		case 7:
+			TCCR3A &= ~(1<<COM3A1);
+			PORTE &= ~(1<<3);
+			break;
+	}
+}
+
+/******************************************/
 void PWM_SetDutyCycle(int ch, int duty)
 {
 	int value;	
 	// need to multiply by 2.55 to get full range.
 	// 327 / 128 = 2.55
+	if ( duty == 0 )
+	   PWM_Disable_Port(ch);
+	else
+	   PWM_Enable_Port(ch);
 
-//	if ( PWM_isAlarm() == 0 )
-	{
-		// convert from % to raw value.
-		value = ( PWM_RangeCheck(duty) * 327 ) >> 7;
-		PWM_UpdateRegister(ch, value);
-	}
-}
-
-/******************************************/
-int PWM_Alarms;	// used to indicate a problem, and disable all channels.
-
-/******************************************/
-int PWM_isAlarm(void)
-{
-	return PWM_Alarms;
-}
-
-/******************************************/
-void PWM_SetAlarm(int alm)
-{
-	PWM_Alarms |= alm;
-//	PWM_Clear();
-}
-
-/******************************************/
-void PWM_ClearAlarm(int alm)
-{
-	PWM_Alarms &= ~alm;
-//	PWM_Clear();
+	// convert from % to raw value.
+	value = ( PWM_RangeCheck(duty) * 327 ) >> 7;
+	PWM_UpdateRegister(ch, value);
 }
 
 /******************************************/
@@ -144,18 +205,7 @@ void PWM_Initialise(void)
 	// make sure all chanels are turned off.
 	PWM_Clear();
 }
-/*
-DDRD |= (1 << DDD6);
-    // PD6 is now an output
-    OCR0A = 128;
-    // set PWM for 50% duty cycle
-    TCCR0A |= (1 << COM0A1);
-    // set none-inverting mode
-    TCCR0A |= (1 << WGM01) | (1 << WGM00);
-    // set fast PWM Mode
-    TCCR0B |= (1 << CS01);
-    // set prescaler to 8 and starts PWM
-*/
+
 /******************************************/
 /******************************************/
 
