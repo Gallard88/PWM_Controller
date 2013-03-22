@@ -167,8 +167,6 @@ void RunTimer(int sig)
 	static int write_time;
   struct timeval tv;
   int rv = 1;
-	int i;
-	float duty;
 
   if ( Serial_fd < 0 )
     return ;	// serial port not configured so don't bother
@@ -182,21 +180,11 @@ void RunTimer(int sig)
     Check_Serial(rv);
   }
 
-
   pthread_mutex_lock( &PWM_ptr->access );
   if ( PWM_ptr->data_ready != 0)
   {
-		for ( i = 0; i < PWM_NUM_CHANELS; i++ )
-		{
-			duty = PWM_ptr->ch[i];
-			if ( duty > 1.0 )
-				duty = 1.0;
-			if ( duty < 0 )
-				duty = 0;
-			rv = Send_PWMChanelData(Serial_fd, i, duty );
-			Check_Serial(rv);
-			PWM_ptr->ch[i] = duty;
-		}
+		rv = Send_PWMChanelData(Serial_fd );
+		Check_Serial(rv);
     PWM_ptr->data_ready = 0;
   }
   pthread_mutex_unlock( &PWM_ptr->access );

@@ -87,14 +87,24 @@ int Send_Restart(int fd)
 }
 
 // *****************
-int Send_PWMChanelData(int fd, int ch, float duty)
+int Send_PWMChanelData(int fd)
 {
-  int rv;
-  char cmd[100];
+  int i;
+	float duty;
+  char cmd[20], msg[20*PWM_NUM_CHANELS];
 
-  sprintf(cmd, "pwm: %d %f", ch, duty*100);
-  rv = write(fd, cmd, strlen(cmd) );
-  return rv;
+	msg[0] = 0;
+	for ( i = 0; i < PWM_NUM_CHANELS; i ++ )
+	{
+		duty = PWM_ptr->ch[i];
+		if ( duty > 1.0 )
+			duty = 1.0;
+		if ( duty < 0 )
+			duty = 0;
+    sprintf(cmd, "pwm: %d %f\n\n", i, duty*100);
+		strcat(msg, cmd);
+	}
+  return write(fd, msg, strlen(msg) );
 }
 
 // *****************

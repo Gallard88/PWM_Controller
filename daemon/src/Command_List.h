@@ -13,7 +13,7 @@ int Send_SystemTime(int fd, unsigned long time);
 int Send_TempData(int fd, JSON_Object *J_Object);
 int Send_VoltData(int fd, JSON_Object *J_Object);
 int Send_CurrentData(int fd, JSON_Object *J_Object);
-int Send_PWMChanelData(int fd, int ch, float duty);
+int Send_PWMChanelData(int fd);
 int Send_Restart(int fd);
 
 // *****************
