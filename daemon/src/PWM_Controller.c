@@ -262,8 +262,6 @@ int main(int argc, char *argv[])
 
 	while ( loop > 0 )
 	{
-		syslog(LOG_DEBUG, "Trying to open Serial port"  );
-
 		Connect_To_Port();
 		while ( Serial_fd >= 0 )
 		{
