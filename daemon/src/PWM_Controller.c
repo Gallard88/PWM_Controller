@@ -48,20 +48,20 @@ const struct timeval system_time = {0,SYSTEM_DELAY};
 // *****************
 void System_Shutdown(void)
 {
-	PWM_ptr->data_ready = 0;
-	PWM_ptr->port_connected = 0;
-	PWM_ptr->voltage = 0;
-	PWM_ptr->current = 0;
-	PWM_ptr->temperature = 0;
-	PWM_ptr->firmware[0] = 0;
+  PWM_ptr->data_ready = 0;
+  PWM_ptr->port_connected = 0;
+  PWM_ptr->voltage = 0;
+  PWM_ptr->current = 0;
+  PWM_ptr->temperature = 0;
+  PWM_ptr->firmware[0] = 0;
 
-	// detach from the segment:
+  // detach from the segment:
   if (shmdt(PWM_ptr) == -1)
-		syslog(LOG_EMERG, "shmdt()");
+    syslog(LOG_EMERG, "shmdt()");
   syslog(LOG_EMERG, "System shutting down");
-	closelog();
+  closelog();
 #ifndef __DAEMONISE__
-	printf("Shutdown\n");
+  printf("Shutdown\n");
 #endif
 }
 
@@ -70,25 +70,25 @@ void Create_Shared_Memory( void )
 {
   key_t key;
   int shmid;
-	int fd;
+  int fd;
 
   // Make sure the file exists.
   fd = open(PWM_KEY_FILE, O_CREAT | O_RDWR, S_IRWXU | S_IRWXG | S_IRWXO);
-	/* Only wanted to make sure that the file exists. */
+  /* Only wanted to make sure that the file exists. */
   close(fd);
 
   // Generate memory key. */
   key = ftok(PWM_KEY_FILE, PWM_MEM_KEY);
   if (key  == -1)
   {
-		syslog(LOG_EMERG, "ftok()");
+    syslog(LOG_EMERG, "ftok()");
     exit(1);
   }
 
   // connect to (and possibly create) the segment:
   if ((shmid = shmget(key, PWM_CON_SHM_SIZE, 0644 | IPC_CREAT)) == -1)
   {
-		syslog(LOG_EMERG, "shmget()");
+    syslog(LOG_EMERG, "shmget()");
     exit(1);
   }
 
@@ -96,7 +96,7 @@ void Create_Shared_Memory( void )
   PWM_ptr = shmat(shmid, (void *)0, 0);
   if ((char *)PWM_ptr == (char *)(-1))
   {
-		syslog(LOG_EMERG, "shmat()");
+    syslog(LOG_EMERG, "shmat()");
     exit(1);
   }
 
@@ -112,7 +112,7 @@ void Check_Serial(int rv)
     Serial_fd = Serial_ClosePort(Serial_fd);
     syslog(LOG_EMERG, "Serial coms lost, %d", errno);
 #ifndef __DAEMONISE__
-		printf("Serial Lost\n");
+    printf("Serial Lost\n");
 #endif
   }
 }
@@ -120,68 +120,68 @@ void Check_Serial(int rv)
 // *****************
 void Read_Settings(void)
 {
-	int rv;
+  int rv;
 
   JSON_Settings = json_parse_file(PWM_Con_Settings_file);
-	rv = json_value_get_type(JSON_Settings);
+  rv = json_value_get_type(JSON_Settings);
 
   if ( rv != JSONObject )
-	{
-		syslog(LOG_EMERG, "JSON data incorrect, %d\n", rv );
+  {
+    syslog(LOG_EMERG, "JSON data incorrect, %d\n", rv );
     exit( -1);
   }
 
   J_Object = json_value_get_object(JSON_Settings);
-	if ( J_Object == NULL )
-	{
-		syslog(LOG_EMERG, "JSON: Failed to get object" );
-		exit( -1);
-	}
+  if ( J_Object == NULL )
+  {
+    syslog(LOG_EMERG, "JSON: Failed to get object" );
+    exit( -1);
+  }
 }
 
 // *****************
 void Connect_To_Port(void)
 {
-	const char *name = json_object_get_string(J_Object, "Serial_Port");
+  const char *name = json_object_get_string(J_Object, "Serial_Port");
 
-	if ( name == NULL )
-	{
-		syslog(LOG_NOTICE, "Com Port name not set");
-		exit(-1);
-	}
+  if ( name == NULL )
+  {
+    syslog(LOG_NOTICE, "Com Port name not set");
+    exit(-1);
+  }
 
- 	Serial_fd = Serial_Openport((char *)name, 115200, 0,0 );
-	if ( Serial_fd < 0 )
-		return;
-	syslog(LOG_NOTICE, "Com Port %s connected", name);
+  Serial_fd = Serial_Openport((char *)name, 115200, 0,0 );
+  if ( Serial_fd < 0 )
+    return;
+  syslog(LOG_NOTICE, "Com Port %s connected", name);
 #ifndef __DAEMONISE__
-	printf("Port Running\n");
+  printf("Port Running\n");
 #endif
 
-	// send start up commands.
-	// read time
-	Send_GetTime(Serial_fd);
-	// send temp limit,
-	// send temp update rate
-	Send_TempData(Serial_fd, J_Object);
+  // send start up commands.
+  // read time
+  Send_GetTime(Serial_fd);
+  // send temp limit,
+  // send temp update rate
+  Send_TempData(Serial_fd, J_Object);
 
-	// send current limit,
-	// send current update rate
-	Send_CurrentData(Serial_fd, J_Object);
+  // send current limit,
+  // send current update rate
+  Send_CurrentData(Serial_fd, J_Object);
 
-	Send_VoltData(Serial_fd, J_Object);
+  Send_VoltData(Serial_fd, J_Object);
 
-	// force unit to restart
-	Send_Restart(Serial_fd);
+  // force unit to restart
+  Send_Restart(Serial_fd);
 #ifndef __DAEMONISE__
-	printf("Restart sent\n");
+  printf("Restart sent\n");
 #endif
 }
 
 // *****************
 void RunTimer(int sig)
-{// receive signal, set up next tick.
-	static int write_time;
+{ // receive signal, set up next tick.
+  static int write_time;
   struct timeval tv;
   int rv = 1;
 
@@ -190,18 +190,18 @@ void RunTimer(int sig)
 
   gettimeofday(&tv, NULL);
   if (( tv.tv_sec - write_time ) > 3600)
-  {// here once an hour
+  { // here once an hour
     write_time = tv.tv_sec;
-		syslog(LOG_DEBUG, "Sending Time data" );
-		rv = Send_SystemTime(Serial_fd, write_time);
+    syslog(LOG_DEBUG, "Sending Time data" );
+    rv = Send_SystemTime(Serial_fd, write_time);
     Check_Serial(rv);
   }
 
   pthread_mutex_lock( &PWM_ptr->access );
   if ( PWM_ptr->data_ready != 0)
   {
-		rv = Send_PWMChanelData(Serial_fd );
-		Check_Serial(rv);
+    rv = Send_PWMChanelData(Serial_fd );
+    Check_Serial(rv);
     PWM_ptr->data_ready = 0;
   }
   pthread_mutex_unlock( &PWM_ptr->access );
@@ -232,7 +232,7 @@ void Setup_Timer(void)
 // *****************
 void Run_CtrlC(int sig)
 {
-	exit(0);
+  exit(0);
 }
 
 // *****************
@@ -240,7 +240,7 @@ void Setup_SignalHandler(void)
 {
   struct sigaction sig;
 
-	// Install timer_handler as the signal handler for SIGVTALRM.
+  // Install timer_handler as the signal handler for SIGVTALRM.
   memset (&sig, 0, sizeof (struct sigaction));
   sig.sa_handler = &Run_CtrlC;
   sigaction (SIGINT , &sig, NULL);
@@ -287,39 +287,39 @@ int main(int argc, char *argv[])
     Connect_To_Port();
     while ( Serial_fd >= 0 )
     {
-			PWM_ptr->port_connected = 1;
+      PWM_ptr->port_connected = 1;
 
-			FD_ZERO(&readfds);
-			FD_SET(Serial_fd, &readfds);
-			select_time = system_time;
+      FD_ZERO(&readfds);
+      FD_SET(Serial_fd, &readfds);
+      select_time = system_time;
 
       rv = select(Serial_fd+1, &readfds, NULL, NULL, &select_time);	// wait indefinately
-			if ( rv < 0 )
-				continue;
+      if ( rv < 0 )
+        continue;
 
       if ( FD_ISSET(Serial_fd, &readfds) )
-			{
-				// run receiver
-				length = strlen(SerialRead_Buf);
-				rv = read(Serial_fd, SerialRead_Buf + length, SERIAL_BUF_SIZE - length);
-				Check_Serial(rv);
+      {
+        // run receiver
+        length = strlen(SerialRead_Buf);
+        rv = read(Serial_fd, SerialRead_Buf + length, SERIAL_BUF_SIZE - length);
+        Check_Serial(rv);
 
-				if ( rv > 0 )
-				{
-					SerialRead_Buf[length + rv] = 0;
+        if ( rv > 0 )
+        {
+          SerialRead_Buf[length + rv] = 0;
 #ifndef __DAEMONISE__
-					puts(SerialRead_Buf+length);
+          puts(SerialRead_Buf+length);
 #endif
-					while ( rv >= 0 )
-					{
-						rv = CmdParse_ProcessString(Cmd_Table, SerialRead_Buf, Serial_fd);
-					}
-				}
-			}
-		}
-		printf("Sleep\n");
-		sleep(60);
-	}
+          while ( rv >= 0 )
+          {
+            rv = CmdParse_ProcessString(Cmd_Table, SerialRead_Buf, Serial_fd);
+          }
+        }
+      }
+    }
+    printf("Sleep\n");
+    sleep(60);
+  }
   return 0;
 }
 
