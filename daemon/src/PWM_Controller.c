@@ -40,6 +40,11 @@ char SerialRead_Buf[SERIAL_BUF_SIZE];
 #define SYSTEM_DELAY	10000
 const struct timeval system_time = {0,SYSTEM_DELAY};
 
+#define TIMER_TICK		100000 // ms
+
+// *****************
+// Options
+//#define __DAEMONISE__		1
 // *****************
 void System_Shutdown(void)
 {
@@ -55,6 +60,9 @@ void System_Shutdown(void)
 		syslog(LOG_EMERG, "shmdt()");
   syslog(LOG_EMERG, "System shutting down");
 	closelog();
+#ifndef __DAEMONISE__
+	printf("Shutdown\n");
+#endif
 }
 
 // *****************
@@ -103,6 +111,9 @@ void Check_Serial(int rv)
     PWM_ptr->port_connected = 0;
     Serial_fd = Serial_ClosePort(Serial_fd);
     syslog(LOG_EMERG, "Serial coms lost, %d", errno);
+#ifndef __DAEMONISE__
+		printf("Serial Lost\n");
+#endif
   }
 }
 
@@ -143,6 +154,9 @@ void Connect_To_Port(void)
 	if ( Serial_fd < 0 )
 		return;
 	syslog(LOG_NOTICE, "Com Port %s connected", name);
+#ifndef __DAEMONISE__
+	printf("Port Running\n");
+#endif
 
 	// send start up commands.
 	// read time
@@ -159,6 +173,9 @@ void Connect_To_Port(void)
 
 	// force unit to restart
 	Send_Restart(Serial_fd);
+#ifndef __DAEMONISE__
+	printf("Restart sent\n");
+#endif
 }
 
 // *****************
@@ -203,10 +220,10 @@ void Setup_Timer(void)
 
   // Configure the timer to expire after 25 msec...
   timer.it_value.tv_sec = 0;
-  timer.it_value.tv_usec = 25000;
+  timer.it_value.tv_usec = TIMER_TICK;
   // ... and every 25 msec after that.
   timer.it_interval.tv_sec = 0;
-  timer.it_interval.tv_usec = 25000;
+  timer.it_interval.tv_usec = TIMER_TICK;
 
   // Start a virtual timer.
   setitimer (ITIMER_REAL, &timer, NULL);
@@ -252,12 +269,17 @@ int main(int argc, char *argv[])
 	Setup_Timer();
 //  Cmd_List = CmdParse_CreateFuncList();
 //	Build_CmdList(Cmd_List);
+#ifdef __DAEMONISE__
   rv = daemon( 0, 0 );
 	if ( rv < 0 )
 	{
 		syslog(LOG_EMERG, "Daemonise failed" );
 		exit(-1);
 	}
+#else
+  printf("System starting - Debug mode\n");
+#endif
+
 	Setup_SignalHandler();
 
 	while ( loop > 0 )
@@ -285,6 +307,9 @@ int main(int argc, char *argv[])
 				if ( rv > 0 )
 				{
 					SerialRead_Buf[length + rv] = 0;
+#ifndef __DAEMONISE__
+					puts(SerialRead_Buf);
+#endif
 					while ( rv >= 0 )
 					{
 						rv = CmdParse_ProcessString(Cmd_Table, SerialRead_Buf, Serial_fd);
@@ -292,7 +317,8 @@ int main(int argc, char *argv[])
 				}
 			}
 		}
-		sleep(10);
+		printf("Sleep\n");
+		sleep(60);
 	}
   return 0;
 }
