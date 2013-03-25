@@ -252,41 +252,41 @@ void Setup_SignalHandler(void)
 int main(int argc, char *argv[])
 {
   int loop = 1;
-	int rv;
-	int length;
-	fd_set readfds;
-	struct timeval select_time;
+  int rv;
+  int length;
+  fd_set readfds;
+  struct timeval select_time;
 
   openlog("PWM_Controller", LOG_PID , LOG_USER );
   syslog(LOG_NOTICE, "PWM_Controller Startup");
 
 
-	// register shutdown function.
-	atexit(System_Shutdown);
+  // register shutdown function.
+  atexit(System_Shutdown);
 
   Create_Shared_Memory();
-	Read_Settings();
-	Setup_Timer();
+  Read_Settings();
+  Setup_Timer();
 //  Cmd_List = CmdParse_CreateFuncList();
 //	Build_CmdList(Cmd_List);
 #ifdef __DAEMONISE__
   rv = daemon( 0, 0 );
-	if ( rv < 0 )
-	{
-		syslog(LOG_EMERG, "Daemonise failed" );
-		exit(-1);
-	}
+  if ( rv < 0 )
+  {
+    syslog(LOG_EMERG, "Daemonise failed" );
+    exit(-1);
+  }
 #else
   printf("System starting - Debug mode\n");
 #endif
 
-	Setup_SignalHandler();
+  Setup_SignalHandler();
 
-	while ( loop > 0 )
-	{
-		Connect_To_Port();
-		while ( Serial_fd >= 0 )
-		{
+  while ( loop > 0 )
+  {
+    Connect_To_Port();
+    while ( Serial_fd >= 0 )
+    {
 			PWM_ptr->port_connected = 1;
 
 			FD_ZERO(&readfds);
@@ -308,7 +308,7 @@ int main(int argc, char *argv[])
 				{
 					SerialRead_Buf[length + rv] = 0;
 #ifndef __DAEMONISE__
-					puts(SerialRead_Buf);
+					puts(SerialRead_Buf+length);
 #endif
 					while ( rv >= 0 )
 					{
