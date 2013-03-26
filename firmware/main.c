@@ -31,7 +31,7 @@
 #include "uart3.h"
 
 // *****************************************************************************
-const char Firmware_Version[] = "V 1.1";
+const char Firmware_Version[] = "V 1.2";
 const char Firmware_Date[] = __DATE__;
 const char Firmware_Time[] = __TIME__;
 
@@ -45,6 +45,7 @@ int Com_Timer;
 // *****************************************************************************
 void Run_USB_Serial(void)
 {// here every 10ms
+    char str[100];
 	int rv, cmd;
 	int size;
 
@@ -62,9 +63,15 @@ void Run_USB_Serial(void)
 				if ( cmd >= 0 )
 				{
                 Com_Timer = 0;
-  		 		USB_LineBuf[0] = 0;
 				U1_TxPutsf("OK\r\n");
 				}
+				else
+				{
+  				  U1_TxPutsf("?>");
+  				  U1_TxPuts(USB_LineBuf);
+  				  U1_TxPutsf("<\r\n");
+				}
+  		 		USB_LineBuf[0] = 0;
 			}
 		}
 	}

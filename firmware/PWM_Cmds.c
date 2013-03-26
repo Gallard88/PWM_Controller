@@ -133,6 +133,8 @@ int Update_Pwm(char *buf)
 	buf = Cmd_SkipSpace(Cmd_SkipChars(buf));
 	duty = atoi(buf);
 
+	csprintf(cmd,"pwm: %d %d\r\n", ch, duty );
+	U1_TxPuts(cmd);
 	if ( ch >= PWM_NUM_CHANELS )
 	{// echo to expansion board.
 		csprintf(cmd,"pwm: %d %d\r\n", ch - PWM_NUM_CHANELS, duty );
