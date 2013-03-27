@@ -101,7 +101,7 @@ int Send_PWMChanelData(int fd)
       duty = 1.0;
     if ( duty < 0 )
       duty = 0;
-    sprintf(cmd, "pwm: %d %f\n\n", i, duty*100);
+    sprintf(cmd, "pwm: %d %f\r\n", i, duty*100);
     strcat(msg, cmd);
   }
   return write(fd, msg, strlen(msg) );

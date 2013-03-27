@@ -203,6 +203,9 @@ void RunTimer(int sig)
     rv = Send_PWMChanelData(Serial_fd );
     Check_Serial(rv);
     PWM_ptr->data_ready = 0;
+#ifndef __DAEMONISE__
+    printf("PWM Update\n");
+#endif
   }
   pthread_mutex_unlock( &PWM_ptr->access );
 }
