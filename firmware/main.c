@@ -44,108 +44,108 @@ int Com_Timer;
 
 // *****************************************************************************
 void Run_USB_Serial(void)
-{// here every 10ms
-    char str[100];
-	int rv, cmd;
-	int size;
+{ // here every 10ms
+  char str[100];
+  int rv, cmd;
+  int size;
 
-	do
-	{
-		size = strlen(USB_LineBuf);
-		rv = U1_RxGetLine( USB_LineBuf + size,  LINEBUF_SIZE - size );
-		if ( rv < 0 )
-			USB_LineBuf[0] = 0;
-		else if ( rv > 0 )
-		{
-		  if ( strlen(USB_LineBuf) )
+  do
+  {
+    size = strlen(USB_LineBuf);
+    rv = U1_RxGetLine( USB_LineBuf + size,  LINEBUF_SIZE - size );
+    if ( rv < 0 )
+      USB_LineBuf[0] = 0;
+    else if ( rv > 0 )
+    {
+      if ( strlen(USB_LineBuf) )
       {
-				cmd = Cmd_Lookup( USB_CmdTable, USB_LineBuf);
-				if ( cmd >= 0 )
-				{
-                Com_Timer = 0;
-				U1_TxPutsf("OK\r\n");
-				}
-				else
-				{
-  				  U1_TxPutsf("?>");
-  				  U1_TxPuts(USB_LineBuf);
-  				  U1_TxPutsf("<\r\n");
-				}
-  		 		USB_LineBuf[0] = 0;
-			}
-		}
-	}
-	while ( rv != 0 );
+        cmd = Cmd_Lookup( USB_CmdTable, USB_LineBuf);
+        if ( cmd >= 0 )
+        {
+          Com_Timer = 0;
+          U1_TxPutsf("OK\r\n");
+        }
+        else
+        {
+          U1_TxPutsf("?>");
+          U1_TxPuts(USB_LineBuf);
+          U1_TxPutsf("<\r\n");
+        }
+        USB_LineBuf[0] = 0;
+      }
+    }
+  }
+  while ( rv != 0 );
 }
 
 // *****************************************************************************
 void Run_External_Serial(void)
-{// here every 10ms
-	int rv;
-	int size;
+{ // here every 10ms
+  int rv;
+  int size;
 
-	do
-	{
-		size = strlen(Ext_LineBuf);
-		rv = U3_RxGetLine( Ext_LineBuf + size,  LINEBUF_SIZE - size );
-		if ( rv < 0 )
-			Ext_LineBuf[0] = 0;
-		else if ( rv > 0 )
-		{
-			Cmd_Lookup(Ext_CmdTable, Ext_LineBuf);
-	 		Ext_LineBuf[0] = 0;
-		}
-	}
-	while ( rv != 0 );
+  do
+  {
+    size = strlen(Ext_LineBuf);
+    rv = U3_RxGetLine( Ext_LineBuf + size,  LINEBUF_SIZE - size );
+    if ( rv < 0 )
+      Ext_LineBuf[0] = 0;
+    else if ( rv > 0 )
+    {
+      Cmd_Lookup(Ext_CmdTable, Ext_LineBuf);
+      Ext_LineBuf[0] = 0;
+    }
+  }
+  while ( rv != 0 );
 }
 
 // *****************************************************************************
 void IO_Init(void)
 {
- 				  //   76543210
-			   	  // 0bIOOIIIII
- 	DDRB = 0x60;		  
-	PORTB = 0x00;
+  //   76543210
+  // 0bIOOIIIII
+  DDRB = 0x60;
+  PORTB = 0x00;
 
- 				  //   76543210
-			   	  // 0b0000OI00
- 	DDRC = 0x01;		  
-	PORTC = 0x01;
+  //   76543210
+  // 0b0000OI00
+  DDRC = 0x01;
+  PORTC = 0x01;
 
- 				  //   76543210
-			   	  // 0b0000OI00
- 	DDRD = 0x04;		  
-	PORTD = 0x0;
-	
- 				  //   76543210
-			   	  // 0b__OOO____
- 	DDRE = 0x38;
-	PORTE = 0x00;
+  //   76543210
+  // 0b0000OI00
+  DDRD = 0x04;
+  PORTD = 0x0;
 
- 				  //   76543210
-			   	  // 0bIIIIIIII
- 	DDRF = 0x00;
-	PORTF = 0x00;
+  //   76543210
+  // 0b__OOO____
+  DDRE = 0x38;
+  PORTE = 0x00;
 
- 				  //   76543210
-			   	  // 0b0000OI00
- 	DDRG = 0x03;		  
-	PORTG = 0x3;
+  //   76543210
+  // 0bIIIIIIII
+  DDRF = 0x00;
+  PORTF = 0x00;
 
- 				  //   76543210
-			   	  // 0b000000OI
- 	DDRJ = 0x02;		  
-	PORTJ = 0x0;
-	
- 				  //   76543210
-			   	  // 0b0000OI00
- 	DDRK = 0x00;
-	PORTK = 0x00;
+  //   76543210
+  // 0b0000OI00
+  DDRG = 0x03;
+  PORTG = 0x3;
 
- 				  //   76543210
-			   	  // 0bIIOOOIII
- 	DDRL = 0x38;
-	PORTL = 0x00;
+  //   76543210
+  // 0b000000OI
+  DDRJ = 0x02;
+  PORTJ = 0x0;
+
+  //   76543210
+  // 0b0000OI00
+  DDRK = 0x00;
+  PORTK = 0x00;
+
+  //   76543210
+  // 0bIIOOOIII
+  DDRL = 0x38;
+  PORTL = 0x00;
 }
 
 // *****************************************************************************
@@ -164,76 +164,76 @@ void WDT_Prescaler_Change(void)
 // *****************************************************************************
 int main( void )
 {
-	//-----------------------------------------------
-	// initialise port pins.
-	asm("wdr");
-	IO_Init();
-	asm("wdr");
+  //-----------------------------------------------
+  // initialise port pins.
+  asm("wdr");
+  IO_Init();
+  asm("wdr");
 
-	// start watchdog
-	WDT_Prescaler_Change();
+  // start watchdog
+  WDT_Prescaler_Change();
 
-	//-----------------------------------------------
-	// Initialise hardware.
+  //-----------------------------------------------
+  // Initialise hardware.
 
-	Timer_Init();	// Heart Beat Timer.
+  Timer_Init();	// Heart Beat Timer.
 
-	// ADC
-	ADC_Init();
+  // ADC
+  ADC_Init();
 
-	U1_Init ( 115200 );	// USB Coms.
-	U3_Init ( 115200 );	// Expansion port.
+  U1_Init ( 115200 );	// USB Coms.
+  U3_Init ( 115200 );	// Expansion port.
 
-	// I2C - To read time data from clock. - To do
+  // I2C - To read time data from clock. - To do
 
-	PWM_Initialise();
+  PWM_Initialise();
 
-	//-----------------------------------------------
-	// Initialise Sub-modules.
-	PWM_Cmds_Init();
+  //-----------------------------------------------
+  // Initialise Sub-modules.
+  PWM_Cmds_Init();
 
-	// RTC Clock  - To do
+  // RTC Clock  - To do
 
-	//-----------------------------------------------
-	Read_Firmware(NULL);
-	PORTC ^= 0x1;
-	
-	// Run main loop.
-	for ( ; ; )
-	{
-		asm(" sei");
-		asm("wdr");
-		if ( Timer_Is10ms() )
-		{
-			// USB command handler
-			Run_USB_Serial();
+  //-----------------------------------------------
+  Read_Firmware(NULL);
+  PORTC ^= 0x1;
 
-			// Expansion command handler
-			Run_External_Serial();
-		}
+  // Run main loop.
+  for ( ; ; )
+  {
+    asm(" sei");
+    asm("wdr");
+    if ( Timer_Is10ms() )
+    {
+      // USB command handler
+      Run_USB_Serial();
 
-		if ( Timer_Is100ms() )
-		{
-			PWM_Cmds_Run();
-/*			
-			Com_Timer++;
-			if ( Com_Timer > EEpromRead_1_default(EE_COM_TIMEOUT, 80) )
-			{
-				Com_Timer = 0;
-				if ( !PWM_isAlarm() )
-				{
-//  				PWM_SetAlarm(0x80);
-					U1_TxPutsf("Coms Timeout\r\n");
-				}
-			}
-*/			
-		}
+      // Expansion command handler
+      Run_External_Serial();
+    }
 
-		if ( Timer_Is1s() )
-		{
-		  PORTG ^= 0x1;
-		}
-	}
+    if ( Timer_Is100ms() )
+    {
+      PWM_Cmds_Run();
+      /*
+      			Com_Timer++;
+      			if ( Com_Timer > EEpromRead_1_default(EE_COM_TIMEOUT, 80) )
+      			{
+      				Com_Timer = 0;
+      				if ( !PWM_isAlarm() )
+      				{
+      //  				PWM_SetAlarm(0x80);
+      					U1_TxPutsf("Coms Timeout\r\n");
+      				}
+      			}
+      */
+    }
+
+    if ( Timer_Is1s() )
+    {
+      PORTG ^= 0x1;
+    }
+  }
 }
 
 // *****************************************************************************

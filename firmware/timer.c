@@ -33,11 +33,11 @@ const int Timer_1s_Count = 1000;
 void Timer_Init(void)
 {
 
-	OCR0A = CTC_TIME;
-	TIFR0   = (1<<OCF0A);		// Clear any pending overflow interrupt
-	TIMSK0 |= (1<<OCIE0A);		// enable timer overflow interrupt
-	TCCR0A = (1<<WGM01);		// CTC mode
-	TCCR0B = (1<<CS01) | (1<<CS00);			// prescaler = Ck/256, starts timer
+  OCR0A = CTC_TIME;
+  TIFR0   = (1<<OCF0A);		// Clear any pending overflow interrupt
+  TIMSK0 |= (1<<OCIE0A);		// enable timer overflow interrupt
+  TCCR0A = (1<<WGM01);		// CTC mode
+  TCCR0B = (1<<CS01) | (1<<CS00);			// prescaler = Ck/256, starts timer
 }
 
 //	***************************************************************************
@@ -45,64 +45,64 @@ void Timer_Init(void)
 #pragma interrupt_handler T0CompAInt:iv_TIMER0_COMPA
 void T0CompAInt (void)
 {
-	// T0 Overflow Interrupt (basic timing)
-	Count_1m++;
-	Count_10m ++;
-	Count_100m ++;
-	Count_1s ++;
+  // T0 Overflow Interrupt (basic timing)
+  Count_1m++;
+  Count_10m ++;
+  Count_100m ++;
+  Count_1s ++;
 }
 
 //	***************************************************************************
 int Timer_Is1ms (void)
 {
 
-	if ( Count_1m )
-	{
-		asm(" cli");
-		Count_1m--;
-		asm(" sei");
-		return 1;
-	}
-	return 0;
+  if ( Count_1m )
+  {
+    asm(" cli");
+    Count_1m--;
+    asm(" sei");
+    return 1;
+  }
+  return 0;
 }
 
 //	***************************************************************************
 int Timer_Is10ms (void) {
 
-	if ( Count_10m > Timer_10ms_Count )
-	{
-		asm(" cli");
-		Count_10m -= Timer_10ms_Count;
-		asm(" sei");
-		return 1;
-	}
-	return 0;
+  if ( Count_10m > Timer_10ms_Count )
+  {
+    asm(" cli");
+    Count_10m -= Timer_10ms_Count;
+    asm(" sei");
+    return 1;
+  }
+  return 0;
 }
 
 //	***************************************************************************
 int Timer_Is100ms (void)
 {
-	if ( Count_100m > Timer_100ms_Count )
-	{
-		asm(" cli");
-		Count_100m -= Timer_100ms_Count;
-		asm(" sei");
-		return 1;
-	}
-	return 0;
+  if ( Count_100m > Timer_100ms_Count )
+  {
+    asm(" cli");
+    Count_100m -= Timer_100ms_Count;
+    asm(" sei");
+    return 1;
+  }
+  return 0;
 }
 
 //	***************************************************************************
 int Timer_Is1s (void)
 {
-	if ( Count_1s > Timer_1s_Count )
-	{
-		asm(" cli");
-		Count_1s -= Timer_1s_Count;
-		asm(" sei");
-		return 1;
-	}
-	return 0;
+  if ( Count_1s > Timer_1s_Count )
+  {
+    asm(" cli");
+    Count_1s -= Timer_1s_Count;
+    asm(" sei");
+    return 1;
+  }
+  return 0;
 }
 
 //	***************************************************************************

@@ -4,8 +4,8 @@
 //*****************************************************************************
 const struct cmdtable
 {
-	const char * const cmd;
-	int (*func)(char *buf);
+  const char * const cmd;
+  int (*func)(char *buf);
 };
 
 char *Cmd_SkipSpace(char *ptr);

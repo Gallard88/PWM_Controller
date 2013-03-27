@@ -1,9 +1,9 @@
-/** @package 
+/** @package
 
 	conf_eeprom.h
-	
+
 	Copyright(c) Toshiba 2000
-	
+
 	Author: TOM BURNS
 	Created: TB  2/02/2013 10:25:04 AM
 	Last Change: TB  2/02/2013 10:25:04 AM
