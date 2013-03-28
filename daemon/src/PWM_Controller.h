@@ -9,6 +9,7 @@ extern "C" {
 // *****************
   int PWM_Connect(void);
 
+  extern const int PWM_Num_Chanels;
 // *****************
   int PWM_isConnected(void);
 
@@ -25,7 +26,10 @@ extern "C" {
   void PWM_SetPWM(int ch, float duty);
 
 // *****************
-// *****************
+  float PWM_GetPWM(int ch);
+
+	// *****************
+	// *****************
 #ifdef __cplusplus
 }
 #endif

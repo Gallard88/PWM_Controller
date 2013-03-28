@@ -23,6 +23,7 @@
 
 // *****************
 Pwm_Shd_Mem *PWM_ptr;
+const int PWM_Num_Chanels = PWM_NUM_CHANELS;
 
 // *****************
 int PWM_Connect(void)
@@ -106,6 +107,21 @@ float PWM_GetVoltage(void)
   pthread_mutex_unlock( &PWM_ptr->access );
 
   return value;
+}
+
+// *****************
+float PWM_GetPWM(int ch)
+{
+	float value;
+
+  if ( ch >= PWM_NUM_CHANELS )
+    return 0;
+
+  pthread_mutex_lock( &PWM_ptr->access );
+	value = PWM_ptr->ch[ch].duty;
+  pthread_mutex_unlock( &PWM_ptr->access );
+
+	return value;
 }
 
 // *****************
