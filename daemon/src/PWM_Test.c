@@ -29,28 +29,28 @@ int main( int argc, char *argv[] )
   unsigned int i;
   float duty;
 
-	if ( PWM_Connect() < 0 )
-	{
+  if ( PWM_Connect() < 0 )
+  {
     printf("Couldn't connect\nIs PWM_Controller running?");
-		return 0;
-	}
+    return 0;
+  }
 
-	if ( PWM_isConnected() == 0 )
-	{
+  if ( PWM_isConnected() == 0 )
+  {
     printf("Hardware Disconnected\n");
-		return 0;
-	}
-	else
-	{
+    return 0;
+  }
+  else
+  {
     printf("Hardware Connected\n");
-	}
+  }
 
   if ( argc == 3 )
   {
     i = atoi(argv[1]);
-      duty = atof(argv[2]);
-			PWM_SetPWM(i, duty);
-      printf("PWM Set: %d = %1.2f\n", i, duty);
+    duty = atof(argv[2]);
+    PWM_SetPWM(i, duty);
+    printf("PWM Set: %d = %1.2f\n", i, duty);
   }
 
   printf("Current %1.2f\n", PWM_GetCurrent());

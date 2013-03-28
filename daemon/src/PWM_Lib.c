@@ -41,14 +41,14 @@ int PWM_Connect(void)
   if (key  == -1)
   {
     perror("ftok");
-		return -1;
+    return -1;
   }
 
   // connect to (and possibly create) the segment:
   if ((shmid = shmget(key, PWM_CON_SHM_SIZE, O_RDWR)) == -1)
   {
     perror("shmget");
-		return -1;
+    return -1;
   }
 
   // attach to the segment to get a pointer to it:
@@ -64,67 +64,67 @@ int PWM_Connect(void)
 // *****************
 int PWM_isConnected(void)
 {
-	int con;
+  int con;
   pthread_mutex_lock( &PWM_ptr->access );
   con = PWM_ptr->data_ready;
   pthread_mutex_unlock( &PWM_ptr->access );
 
-	return con;
+  return con;
 }
 
 // *****************
 float PWM_GetTemp(void)
 {
-	float value;
+  float value;
 
   pthread_mutex_lock( &PWM_ptr->access );
   value = PWM_ptr->temperature;
   pthread_mutex_unlock( &PWM_ptr->access );
 
-	return value;
+  return value;
 }
 
 // *****************
 float PWM_GetCurrent(void)
 {
-	float value;
+  float value;
 
   pthread_mutex_lock( &PWM_ptr->access );
   value = PWM_ptr->current;
   pthread_mutex_unlock( &PWM_ptr->access );
 
-	return value;
+  return value;
 }
 
 // *****************
 float PWM_GetVoltage(void)
 {
-	float value;
+  float value;
 
   pthread_mutex_lock( &PWM_ptr->access );
   value = PWM_ptr->voltage;
   pthread_mutex_unlock( &PWM_ptr->access );
 
-	return value;
+  return value;
 }
 
 // *****************
 void PWM_SetPWM(int ch, float duty)
 {
-	if ( ch >= PWM_NUM_CHANELS )
-		return;
+  if ( ch >= PWM_NUM_CHANELS )
+    return;
 
   pthread_mutex_lock( &PWM_ptr->access );
-	if ( duty > 1.0 )
-		duty = 1.0;
-	if ( duty < 0.0 )
-		duty = 0.0;
+  if ( duty > 1.0 )
+    duty = 1.0;
+  if ( duty < 0.0 )
+    duty = 0.0;
 
-	PWM_ptr->ch[ch].duty = duty;
+  PWM_ptr->ch[ch].duty = duty;
   PWM_ptr->ch[ch].update = time(NULL);
   PWM_ptr->data_ready = 1;
 
-	pthread_mutex_unlock( &PWM_ptr->access );
+  pthread_mutex_unlock( &PWM_ptr->access );
 }
 
 // *****************

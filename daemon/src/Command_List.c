@@ -172,19 +172,19 @@ int Send_Restart(int fd)
 // *****************
 int Send_PWMChanelData(int fd)
 {
-	PWM_Ch *ch;
+  PWM_Ch *ch;
   int i;
   float duty;
   char cmd[20], msg[20*PWM_NUM_CHANELS];
 
 //  if ( PWM_ptr->data_ready != 0)
 
-	msg[0] = 0;
+  msg[0] = 0;
   pthread_mutex_lock( &PWM_ptr->access );
   for ( i = 0; i < PWM_NUM_CHANELS; i ++ )
   {
     ch = &PWM_ptr->ch[i];
-		duty = ch->duty;
+    duty = ch->duty;
     if ( duty > 1.0 )
       duty = 1.0;
     if ( duty < 0 )
@@ -194,7 +194,7 @@ int Send_PWMChanelData(int fd)
   }
   pthread_mutex_unlock( &PWM_ptr->access );
 
-	return write(fd, msg, strlen(msg) );
+  return write(fd, msg, strlen(msg) );
 }
 
 // *****************

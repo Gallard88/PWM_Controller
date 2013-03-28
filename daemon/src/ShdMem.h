@@ -17,9 +17,9 @@ extern "C" {
 #define PWM_FIRMWARE_SIZE		128
   typedef struct
   {
-		float duty;
-		time_t update;
-	} PWM_Ch;
+    float duty;
+    time_t update;
+  } PWM_Ch;
 
   typedef struct
   {

@@ -47,7 +47,7 @@ const struct timeval system_time = {0,SYSTEM_DELAY};
 // *****************
 void System_Shutdown(void)
 {
-	CL_CLearSharedMemory();
+  CL_CLearSharedMemory();
   syslog(LOG_EMERG, "System shutting down");
   closelog();
 #ifndef __DAEMONISE__
@@ -60,7 +60,7 @@ void Check_Serial(int rv)
 {
   if ( rv < 0 )
   {
-CL_SetDisconnected();
+    CL_SetDisconnected();
     Serial_fd = Serial_ClosePort(Serial_fd);
     syslog(LOG_EMERG, "Serial coms lost, %d", errno);
 #ifndef __DAEMONISE__
@@ -150,8 +150,8 @@ void RunTimer(int sig)
     Check_Serial(rv);
   }
 
-    rv = Send_PWMChanelData(Serial_fd );
-    Check_Serial(rv);
+  rv = Send_PWMChanelData(Serial_fd );
+  Check_Serial(rv);
 }
 
 // *****************
