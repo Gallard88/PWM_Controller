@@ -51,17 +51,17 @@ int main( int argc, char *argv[] )
     duty = atof(argv[2]);
     PWM_SetPWM(i, duty);
     printf("PWM Set: %d = %1.2f\n", i, duty);
-		return;
+    return;
   }
 
   printf("Current %1.2f\n", PWM_GetCurrent());
   printf("Voltage %1.2f\n", PWM_GetVoltage());
   printf("Temp:   %1.2f\n", PWM_GetTemp());
 
-	for ( i = 0; i < PWM_Num_Chanels; i ++)
-	{
+  for ( i = 0; i < PWM_Num_Chanels; i ++)
+  {
     printf("PWM %d: %1.2f\n", i, PWM_GetPWM(i));
-	}
+  }
   return 0;
 }
 

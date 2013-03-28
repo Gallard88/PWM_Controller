@@ -112,16 +112,16 @@ float PWM_GetVoltage(void)
 // *****************
 float PWM_GetPWM(int ch)
 {
-	float value;
+  float value;
 
   if ( ch >= PWM_NUM_CHANELS )
     return 0;
 
   pthread_mutex_lock( &PWM_ptr->access );
-	value = PWM_ptr->ch[ch].duty;
+  value = PWM_ptr->ch[ch].duty;
   pthread_mutex_unlock( &PWM_ptr->access );
 
-	return value;
+  return value;
 }
 
 // *****************
