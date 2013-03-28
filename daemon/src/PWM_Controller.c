@@ -42,6 +42,9 @@ const struct timeval system_time = {0,SYSTEM_DELAY};
 #define TIMER_TICK		100000 // ms
 
 // *****************
+void Setup_Timer(int start);
+
+// *****************
 // Options
 //#define __DAEMONISE__		1
 // *****************
@@ -60,6 +63,7 @@ void Check_Serial(int rv)
 {
   if ( rv < 0 )
   {
+    Setup_Timer(0);
     CL_SetDisconnected();
     Serial_fd = Serial_ClosePort(Serial_fd);
     syslog(LOG_EMERG, "Serial coms lost, %d", errno);
@@ -110,6 +114,7 @@ void Connect_To_Port(void)
   printf("Port Running\n");
 #endif
   CL_SetConnected();
+  Setup_Timer(1);
 
   // send start up commands.
   // read time
@@ -155,7 +160,7 @@ void RunTimer(int sig)
 }
 
 // *****************
-void Setup_Timer(void)
+void Setup_Timer(int start)
 {
   struct itimerval timer;
   struct sigaction sig;
@@ -165,12 +170,22 @@ void Setup_Timer(void)
   sig.sa_handler = &RunTimer;
   sigaction (SIGALRM , &sig, NULL);
 
+	if ( start > 0 )
+	{
   // Configure the timer to expire after 25 msec...
-  timer.it_value.tv_sec = 0;
-  timer.it_value.tv_usec = TIMER_TICK;
-  // ... and every 25 msec after that.
-  timer.it_interval.tv_sec = 0;
-  timer.it_interval.tv_usec = TIMER_TICK;
+    timer.it_value.tv_sec = 0;
+    timer.it_value.tv_usec = TIMER_TICK;
+    // ... and every 25 msec after that.
+    timer.it_interval.tv_sec = 0;
+    timer.it_interval.tv_usec = TIMER_TICK;
+	}
+	else
+	{ // stop the timer
+		timer.it_value.tv_sec = 0;
+		timer.it_value.tv_usec = 0;
+		timer.it_interval.tv_sec = 0;
+		timer.it_interval.tv_usec = 0;
+	}
 
   // Start a virtual timer.
   setitimer (ITIMER_REAL, &timer, NULL);
@@ -213,7 +228,6 @@ int main(int argc, char *argv[])
 
   CL_Create_Shared_Memory();
   Read_Settings();
-  Setup_Timer();
 //  Cmd_List = CmdParse_CreateFuncList();
 //	Build_CmdList(Cmd_List);
 #ifdef __DAEMONISE__
@@ -262,8 +276,10 @@ int main(int argc, char *argv[])
         }
       }
     }
+#ifndef __DAEMONISE__
     printf("Sleep\n");
-    sleep(60);
+#endif
+		sleep(60);
   }
   return 0;
 }
