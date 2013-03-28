@@ -111,16 +111,12 @@ int Serial_Openport(char * port, int baudrate, int rec_chars, int block_time)
     baudr = B1000000;
     break;
   default      :
-    printf("invalid baudrate\n");
-    return (-1);
+    baudr = B115200;
+    break;
   }
   port_id = open(port, O_RDWR | O_NOCTTY);
-//  port_id = open(port, O_RDWR | O_NOCTTY | O_NDELAY);
   if(port_id < 0 )
-  {
-    perror("Unable to open comport\n");
     return (-1);
-  }
 
   fcntl(port_id, F_SETFL, 0);
 
@@ -135,7 +131,6 @@ int Serial_Openport(char * port, int baudrate, int rec_chars, int block_time)
   if( tcsetattr(port_id, TCSANOW, &options) == -1)
   {
     close(port_id);
-    perror("Unable to adjust port settings\n");
     return (-1);
   }
   return port_id;
@@ -164,8 +159,7 @@ int Serial_ReadData(int portId, unsigned char *buf, int length)
 //==============================================
 int Serial_ClosePort(int portId)
 {
-  close(portId);
-  return -1;
+  return close(portId);
 }
 
 //==============================================
