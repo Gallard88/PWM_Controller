@@ -86,13 +86,13 @@ void CL_CLearSharedMemory(void)
 // *****************
 void CL_SetConnected(void)
 {
-  PWM_ptr->data_ready = 1;
+  PWM_ptr->port_connected = 1;
 }
 
 // *****************
 void CL_SetDisconnected(void)
 {
-  PWM_ptr->data_ready = 0;
+  PWM_ptr->port_connected = 0;
 }
 
 // *****************
