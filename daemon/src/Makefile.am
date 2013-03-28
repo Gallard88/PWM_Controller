@@ -6,7 +6,14 @@ AM_CFLAGS = --pedantic -Wall  -std=c99
 PWM_Controllerdir=/usr/bin/
 PWM_Controller_PROGRAMS= PWM_Controller PWM_Test
 
-include_HEADERS= PWM_Controller.h
+lib_LIBRARIES = libPWMControl.a
+libPWMControl_a_SOURCES = \
+        PWM_Lib.c \
+        PWM_Controller.h
+
+include_HEADERS = PWM_Controller.h
+
+#include_HEADERS= PWM_Controller.h
 PWM_Filesdir= /etc
 PWM_Files_DATA= PWM_Controller.conf
 
@@ -23,7 +30,8 @@ PWM_Controller_SOURCES= \
 	PWM_Controller.h
 
 PWM_Test_SOURCES= \
-        PWM_Test.c      \
+        PWM_Test.c \
+        PWM_Lib.c \
         PWM_Controller.h
 
 

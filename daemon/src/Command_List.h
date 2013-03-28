@@ -7,6 +7,14 @@
 #include "CmdParse.h"
 
 // *****************
+void CL_Create_Shared_Memory( void );
+void CL_CLearSharedMemory(void);
+
+// *****************
+void CL_SetConnected(void);
+void CL_SetDisconnected(void);
+
+// *****************
 // Send data commands
 int Send_GetTime(int fd);
 int Send_SystemTime(int fd, unsigned long time);

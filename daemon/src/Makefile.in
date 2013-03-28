@@ -17,6 +17,7 @@
 
 
 
+
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
@@ -46,26 +47,6 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__installdirs = "$(DESTDIR)$(PWM_Controllerdir)" \
-	"$(DESTDIR)$(PWM_Filesdir)" "$(DESTDIR)$(includedir)"
-PROGRAMS = $(PWM_Controller_PROGRAMS)
-am_PWM_Controller_OBJECTS = CmdParse.$(OBJEXT) Command_List.$(OBJEXT) \
-	parson.$(OBJEXT) Serial.$(OBJEXT) PWM_Controller.$(OBJEXT)
-PWM_Controller_OBJECTS = $(am_PWM_Controller_OBJECTS)
-PWM_Controller_LDADD = $(LDADD)
-am_PWM_Test_OBJECTS = PWM_Test.$(OBJEXT)
-PWM_Test_OBJECTS = $(am_PWM_Test_OBJECTS)
-PWM_Test_LDADD = $(LDADD)
-DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
-depcomp = $(SHELL) $(top_srcdir)/depcomp
-am__depfiles_maybe = depfiles
-am__mv = mv -f
-COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
-	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-CCLD = $(CC)
-LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(PWM_Controller_SOURCES) $(PWM_Test_SOURCES)
-DIST_SOURCES = $(PWM_Controller_SOURCES) $(PWM_Test_SOURCES)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -93,6 +74,36 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
+am__installdirs = "$(DESTDIR)$(libdir)" \
+	"$(DESTDIR)$(PWM_Controllerdir)" "$(DESTDIR)$(PWM_Filesdir)" \
+	"$(DESTDIR)$(includedir)"
+LIBRARIES = $(lib_LIBRARIES)
+AR = ar
+ARFLAGS = cru
+libPWMControl_a_AR = $(AR) $(ARFLAGS)
+libPWMControl_a_LIBADD =
+am_libPWMControl_a_OBJECTS = PWM_Lib.$(OBJEXT)
+libPWMControl_a_OBJECTS = $(am_libPWMControl_a_OBJECTS)
+PROGRAMS = $(PWM_Controller_PROGRAMS)
+am_PWM_Controller_OBJECTS = CmdParse.$(OBJEXT) Command_List.$(OBJEXT) \
+	parson.$(OBJEXT) Serial.$(OBJEXT) PWM_Controller.$(OBJEXT)
+PWM_Controller_OBJECTS = $(am_PWM_Controller_OBJECTS)
+PWM_Controller_LDADD = $(LDADD)
+am_PWM_Test_OBJECTS = PWM_Test.$(OBJEXT) PWM_Lib.$(OBJEXT)
+PWM_Test_OBJECTS = $(am_PWM_Test_OBJECTS)
+PWM_Test_LDADD = $(LDADD)
+DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
+depcomp = $(SHELL) $(top_srcdir)/depcomp
+am__depfiles_maybe = depfiles
+am__mv = mv -f
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+SOURCES = $(libPWMControl_a_SOURCES) $(PWM_Controller_SOURCES) \
+	$(PWM_Test_SOURCES)
+DIST_SOURCES = $(libPWMControl_a_SOURCES) $(PWM_Controller_SOURCES) \
+	$(PWM_Test_SOURCES)
 DATA = $(PWM_Files_DATA)
 HEADERS = $(include_HEADERS)
 ETAGS = etags
@@ -135,6 +146,7 @@ PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+RANLIB = @RANLIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
@@ -188,7 +200,14 @@ AM_CFLAGS = --pedantic -Wall  -std=c99
 # this lists the binaries to produce, the (non-PHONY, binary) targets in
 # the previous manual Makefile
 PWM_Controllerdir = /usr/bin/
+lib_LIBRARIES = libPWMControl.a
+libPWMControl_a_SOURCES = \
+        PWM_Lib.c \
+        PWM_Controller.h
+
 include_HEADERS = PWM_Controller.h
+
+#include_HEADERS= PWM_Controller.h
 PWM_Filesdir = /etc
 PWM_Files_DATA = PWM_Controller.conf
 PWM_Controller_SOURCES = \
@@ -204,7 +223,8 @@ PWM_Controller_SOURCES = \
 	PWM_Controller.h
 
 PWM_Test_SOURCES = \
-        PWM_Test.c      \
+        PWM_Test.c \
+        PWM_Lib.c \
         PWM_Controller.h
 
 all: all-am
@@ -241,6 +261,40 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
+install-libLIBRARIES: $(lib_LIBRARIES)
+	@$(NORMAL_INSTALL)
+	test -z "$(libdir)" || $(MKDIR_P) "$(DESTDIR)$(libdir)"
+	@list='$(lib_LIBRARIES)'; test -n "$(libdir)" || list=; \
+	list2=; for p in $$list; do \
+	  if test -f $$p; then \
+	    list2="$$list2 $$p"; \
+	  else :; fi; \
+	done; \
+	test -z "$$list2" || { \
+	  echo " $(INSTALL_DATA) $$list2 '$(DESTDIR)$(libdir)'"; \
+	  $(INSTALL_DATA) $$list2 "$(DESTDIR)$(libdir)" || exit $$?; }
+	@$(POST_INSTALL)
+	@list='$(lib_LIBRARIES)'; test -n "$(libdir)" || list=; \
+	for p in $$list; do \
+	  if test -f $$p; then \
+	    $(am__strip_dir) \
+	    echo " ( cd '$(DESTDIR)$(libdir)' && $(RANLIB) $$f )"; \
+	    ( cd "$(DESTDIR)$(libdir)" && $(RANLIB) $$f ) || exit $$?; \
+	  else :; fi; \
+	done
+
+uninstall-libLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	@list='$(lib_LIBRARIES)'; test -n "$(libdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(libdir)'; $(am__uninstall_files_from_dir)
+
+clean-libLIBRARIES:
+	-test -z "$(lib_LIBRARIES)" || rm -f $(lib_LIBRARIES)
+libPWMControl.a: $(libPWMControl_a_OBJECTS) $(libPWMControl_a_DEPENDENCIES) $(EXTRA_libPWMControl_a_DEPENDENCIES) 
+	-rm -f libPWMControl.a
+	$(libPWMControl_a_AR) libPWMControl.a $(libPWMControl_a_OBJECTS) $(libPWMControl_a_LIBADD)
+	$(RANLIB) libPWMControl.a
 install-PWM_ControllerPROGRAMS: $(PWM_Controller_PROGRAMS)
 	@$(NORMAL_INSTALL)
 	test -z "$(PWM_Controllerdir)" || $(MKDIR_P) "$(DESTDIR)$(PWM_Controllerdir)"
@@ -294,6 +348,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CmdParse.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Command_List.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PWM_Controller.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PWM_Lib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PWM_Test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Serial.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parson.Po@am__quote@
@@ -432,9 +487,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(PROGRAMS) $(DATA) $(HEADERS)
+all-am: Makefile $(LIBRARIES) $(PROGRAMS) $(DATA) $(HEADERS)
 installdirs:
-	for dir in "$(DESTDIR)$(PWM_Controllerdir)" "$(DESTDIR)$(PWM_Filesdir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(PWM_Controllerdir)" "$(DESTDIR)$(PWM_Filesdir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -469,7 +524,8 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-PWM_ControllerPROGRAMS clean-generic mostlyclean-am
+clean-am: clean-PWM_ControllerPROGRAMS clean-generic \
+	clean-libLIBRARIES mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -496,7 +552,7 @@ install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am:
+install-exec-am: install-libLIBRARIES
 
 install-html: install-html-am
 
@@ -536,25 +592,25 @@ ps: ps-am
 ps-am:
 
 uninstall-am: uninstall-PWM_ControllerPROGRAMS uninstall-PWM_FilesDATA \
-	uninstall-includeHEADERS
+	uninstall-includeHEADERS uninstall-libLIBRARIES
 
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean \
-	clean-PWM_ControllerPROGRAMS clean-generic ctags distclean \
-	distclean-compile distclean-generic distclean-tags distdir dvi \
-	dvi-am html html-am info info-am install \
-	install-PWM_ControllerPROGRAMS install-PWM_FilesDATA \
+	clean-PWM_ControllerPROGRAMS clean-generic clean-libLIBRARIES \
+	ctags distclean distclean-compile distclean-generic \
+	distclean-tags distdir dvi dvi-am html html-am info info-am \
+	install install-PWM_ControllerPROGRAMS install-PWM_FilesDATA \
 	install-am install-data install-data-am install-dvi \
 	install-dvi-am install-exec install-exec-am install-html \
 	install-html-am install-includeHEADERS install-info \
-	install-info-am install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
+	install-info-am install-libLIBRARIES install-man install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic pdf pdf-am ps ps-am tags uninstall \
 	uninstall-PWM_ControllerPROGRAMS uninstall-PWM_FilesDATA \
-	uninstall-am uninstall-includeHEADERS
+	uninstall-am uninstall-includeHEADERS uninstall-libLIBRARIES
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

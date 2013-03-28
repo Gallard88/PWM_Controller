@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?><diagram program="umlet" version="11.3">
-  <zoom_level>8</zoom_level>
+  <zoom_level>7</zoom_level>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>776</x>
-      <y>312</y>
-      <w>256</w>
-      <h>56</h>
+      <x>889</x>
+      <y>469</y>
+      <w>224</w>
+      <h>49</h>
     </coordinates>
     <panel_attributes>Serial.c
 --
@@ -20,10 +20,10 @@ Handles direct coms with the hardware serial port.
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>440</x>
-      <y>232</y>
-      <w>216</w>
-      <h>96</h>
+      <x>595</x>
+      <y>399</y>
+      <w>189</w>
+      <h>84</h>
     </coordinates>
     <panel_attributes>PWM_Daemon.c
 --
@@ -37,21 +37,21 @@ Then ties all the modles together.
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>632</x>
-      <y>280</y>
-      <w>160</w>
-      <h>88</h>
+      <x>763</x>
+      <y>441</y>
+      <w>139</w>
+      <h>76</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
-    <additional_attributes>24;24;144;72</additional_attributes>
+    <additional_attributes>21;21;126;63</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>744</x>
-      <y>16</y>
-      <w>256</w>
-      <h>96</h>
+      <x>861</x>
+      <y>210</y>
+      <w>224</w>
+      <h>84</h>
     </coordinates>
     <panel_attributes>Cmd_Processor.c
 --
@@ -62,34 +62,76 @@ Extracts \r\n delmitited fields of text</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>632</x>
-      <y>40</y>
-      <w>128</w>
-      <h>240</h>
+      <x>763</x>
+      <y>231</y>
+      <w>111</w>
+      <h>209</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
-    <additional_attributes>24;224;112;24</additional_attributes>
+    <additional_attributes>21;196;98;21</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>525</x>
+      <y>196</y>
+      <w>83</w>
+      <h>258</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>21;21;21;245;70;245</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>0</x>
-      <y>168</y>
-      <w>288</w>
-      <h>248</h>
+      <x>203</x>
+      <y>266</y>
+      <w>203</w>
+      <h>133</h>
     </coordinates>
-    <panel_attributes>ShdMem_Interface.c
+    <panel_attributes>libPWMControl.a
 --
-* Creates and controls access to Shared memory.
-* Contains a list of functions to manioulate 
-the various members in memory.
+* controls access to the PWM shared data
+by external programs.
 --
+PWMControl_Connect()
+PWMControl_GetTemp()
+PWMControl_GetVoltage()
+PWMControl_GetCurent()
+PWMControl_SetPWM()
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>329</x>
+      <y>0</y>
+      <w>252</w>
+      <h>217</h>
+    </coordinates>
+    <panel_attributes>ShdMem_Interface.h
+--
+* Creates and controls access
+     to Shared memory.
+* Contains a list of functions 
+     to manioulate the various 
+     members in memory.
+--
+struct PWM_Ch
+{
+  float duty;
+  time_t set;	
+}
+
 struct 
 {
   mutex_t access;
-  float pmw[];
+  struct PWM_Ch pwm[];
   float current;
   float temperature;
+  float voltage;
   int data_ready;
 };
 
@@ -99,12 +141,12 @@ struct
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>264</x>
-      <y>256</y>
-      <w>192</w>
-      <h>40</h>
+      <x>357</x>
+      <y>196</y>
+      <w>34</w>
+      <h>83</h>
     </coordinates>
     <panel_attributes>lt=&lt;&lt;-</panel_attributes>
-    <additional_attributes>24;24;176;24</additional_attributes>
+    <additional_attributes>21;21;21;70</additional_attributes>
   </element>
 </diagram>

@@ -26,7 +26,6 @@
 // *****************
 const char PWM_Con_Settings_file[] = "/etc/PWM_Controller.conf";
 
-Pwm_Con_Mem *PWM_ptr;
 JSON_Value *JSON_Settings;
 JSON_Object *J_Object;
 
@@ -48,16 +47,7 @@ const struct timeval system_time = {0,SYSTEM_DELAY};
 // *****************
 void System_Shutdown(void)
 {
-  PWM_ptr->data_ready = 0;
-  PWM_ptr->port_connected = 0;
-  PWM_ptr->voltage = 0;
-  PWM_ptr->current = 0;
-  PWM_ptr->temperature = 0;
-  PWM_ptr->firmware[0] = 0;
-
-  // detach from the segment:
-  if (shmdt(PWM_ptr) == -1)
-    syslog(LOG_EMERG, "shmdt()");
+	CL_CLearSharedMemory();
   syslog(LOG_EMERG, "System shutting down");
   closelog();
 #ifndef __DAEMONISE__
@@ -66,49 +56,11 @@ void System_Shutdown(void)
 }
 
 // *****************
-void Create_Shared_Memory( void )
-{
-  key_t key;
-  int shmid;
-  int fd;
-
-  // Make sure the file exists.
-  fd = open(PWM_KEY_FILE, O_CREAT | O_RDWR, S_IRWXU | S_IRWXG | S_IRWXO);
-  /* Only wanted to make sure that the file exists. */
-  close(fd);
-
-  // Generate memory key. */
-  key = ftok(PWM_KEY_FILE, PWM_MEM_KEY);
-  if (key  == -1)
-  {
-    syslog(LOG_EMERG, "ftok()");
-    exit(1);
-  }
-
-  // connect to (and possibly create) the segment:
-  if ((shmid = shmget(key, PWM_CON_SHM_SIZE, 0644 | IPC_CREAT)) == -1)
-  {
-    syslog(LOG_EMERG, "shmget()");
-    exit(1);
-  }
-
-  // attach to the segment to get a pointer to it:
-  PWM_ptr = shmat(shmid, (void *)0, 0);
-  if ((char *)PWM_ptr == (char *)(-1))
-  {
-    syslog(LOG_EMERG, "shmat()");
-    exit(1);
-  }
-
-  pthread_mutex_init(&PWM_ptr->access, NULL);
-}
-
-// *****************
 void Check_Serial(int rv)
 {
   if ( rv < 0 )
   {
-    PWM_ptr->port_connected = 0;
+CL_SetDisconnected();
     Serial_fd = Serial_ClosePort(Serial_fd);
     syslog(LOG_EMERG, "Serial coms lost, %d", errno);
 #ifndef __DAEMONISE__
@@ -157,6 +109,7 @@ void Connect_To_Port(void)
 #ifndef __DAEMONISE__
   printf("Port Running\n");
 #endif
+  CL_SetConnected();
 
   // send start up commands.
   // read time
@@ -197,14 +150,8 @@ void RunTimer(int sig)
     Check_Serial(rv);
   }
 
-  pthread_mutex_lock( &PWM_ptr->access );
-  if ( PWM_ptr->data_ready != 0)
-  {
     rv = Send_PWMChanelData(Serial_fd );
     Check_Serial(rv);
-    PWM_ptr->data_ready = 0;
-  }
-  pthread_mutex_unlock( &PWM_ptr->access );
 }
 
 // *****************
@@ -264,7 +211,7 @@ int main(int argc, char *argv[])
   // register shutdown function.
   atexit(System_Shutdown);
 
-  Create_Shared_Memory();
+  CL_Create_Shared_Memory();
   Read_Settings();
   Setup_Timer();
 //  Cmd_List = CmdParse_CreateFuncList();
@@ -287,8 +234,6 @@ int main(int argc, char *argv[])
     Connect_To_Port();
     while ( Serial_fd >= 0 )
     {
-      PWM_ptr->port_connected = 1;
-
       FD_ZERO(&readfds);
       FD_SET(Serial_fd, &readfds);
       select_time = system_time;
@@ -322,7 +267,6 @@ int main(int argc, char *argv[])
   }
   return 0;
 }
-
 
 // *****************
 // *****************
