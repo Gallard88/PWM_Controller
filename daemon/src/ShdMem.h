@@ -15,23 +15,23 @@ extern "C" {
 
 #define PWM_NUM_CHANELS			16
 #define PWM_FIRMWARE_SIZE		128
-  typedef struct
-  {
-    float duty;
-    time_t update;
-  } PWM_Ch;
+    typedef struct
+    {
+        float duty;
+        time_t update;
+    } PWM_Ch;
 
-  typedef struct
-  {
-    pthread_mutex_t access;
-    unsigned data_ready:1;
-    unsigned port_connected:1;
-    float voltage;
-    float current;
-    float temperature;
-    char firmware[PWM_FIRMWARE_SIZE];
-    PWM_Ch ch[PWM_NUM_CHANELS];
-  } Pwm_Shd_Mem;
+    typedef struct
+    {
+        pthread_mutex_t access;
+        unsigned data_ready:1;
+        unsigned port_connected:1;
+        float voltage;
+        float current;
+        float temperature;
+        char firmware[PWM_FIRMWARE_SIZE];
+        PWM_Ch ch[PWM_NUM_CHANELS];
+    } Pwm_Shd_Mem;
 
 //  extern Pwm_Shd_Mem *PWM_ptr;
 

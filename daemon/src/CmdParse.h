@@ -7,8 +7,8 @@ typedef  int (*Cmd_Callback)(int fd, char *arg) ;
 
 struct CmdFunc
 {
-  const char *cmd;
-  Cmd_Callback func;
+    const char *cmd;
+    Cmd_Callback func;
 };
 
 

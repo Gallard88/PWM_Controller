@@ -7,29 +7,29 @@ extern "C" {
 #endif
 
 // *****************
-  int PWM_Connect(void);
+    int PWM_Connect(void);
 
-  extern const int PWM_Num_Chanels;
+    extern const int PWM_Num_Chanels;
 // *****************
-  int PWM_isConnected(void);
-
-// *****************
-  float PWM_GetTemp(void);
+    int PWM_isConnected(void);
 
 // *****************
-  float PWM_GetCurrent(void);
+    float PWM_GetTemp(void);
 
 // *****************
-  float PWM_GetVoltage(void);
+    float PWM_GetCurrent(void);
 
 // *****************
-  void PWM_SetPWM(int ch, float duty);
+    float PWM_GetVoltage(void);
 
 // *****************
-  float PWM_GetPWM(int ch);
+    void PWM_SetPWM(int ch, float duty);
 
-  // *****************
-  // *****************
+// *****************
+    float PWM_GetPWM(int ch);
+
+    // *****************
+    // *****************
 #ifdef __cplusplus
 }
 #endif
