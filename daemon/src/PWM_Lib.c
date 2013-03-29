@@ -33,7 +33,7 @@ int PWM_Connect(void)
     int fd;
 
     // Make sure the file exists.
-    fd = open(PWM_KEY_FILE, O_CREAT | O_RDWR, S_IRWXU | S_IRWXG | S_IRWXO);
+    fd = open(PWM_KEY_FILE, O_RDWR, S_IRWXU | S_IRWXG | S_IRWXO);
     /* Only wanted to make sure that the file exists. */
     close(fd);
 
