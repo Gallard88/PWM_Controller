@@ -67,7 +67,7 @@ int PWM_isConnected(void)
 {
     int con;
     pthread_mutex_lock( &PWM_ptr->access );
-    con = PWM_ptr->data_ready;
+    con = PWM_ptr->port_connected;
     pthread_mutex_unlock( &PWM_ptr->access );
 
     return con;
