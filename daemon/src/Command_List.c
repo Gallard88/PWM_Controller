@@ -65,6 +65,7 @@ void CL_Create_Shared_Memory( void )
         exit(1);
     }
 
+    memset(PWM_ptr, 0, sizeof(Pwm_Shd_Mem));
     pthread_mutex_init(&PWM_ptr->access, NULL);
 }
 
@@ -172,6 +173,8 @@ int Send_Restart(int fd)
 // *****************
 float Check_PWM(float duty)
 {
+    if ( duty != duty )
+        return 0;  // Nan check
     if ( duty > 1.0 )
         return 1.0;
     if ( duty < 1.0 )
