@@ -1,0 +1,4 @@
+#!/bin/bash
+
+update-rc.d PWM_Controllerd remove
+rm -rf /etc/init.d/PWM_Controllerd
