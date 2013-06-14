@@ -3,7 +3,7 @@ AM_CFLAGS = --pedantic -Wall  -std=c99
 #LDFLAGS =
 # this lists the binaries to produce, the (non-PHONY, binary) targets in
 # the previous manual Makefile
-PWM_Controllerdir=/usr/bin/
+PWM_Controllerdir=/usr/sbin/
 PWM_Controller_PROGRAMS= PWM_Controller PWM_Test
 
 lib_LIBRARIES = libPWMControl.a
@@ -16,6 +16,10 @@ include_HEADERS = PWM_Controller.h
 #include_HEADERS= PWM_Controller.h
 PWM_Filesdir= /etc
 PWM_Files_DATA= PWM_Controller.conf
+
+# Install that start up script.
+PWM_INITdir = /etc/init.d/
+PWM_INIT_Data=PWM_Controllerd
 
 PWM_Controller_SOURCES= \
 	CmdParse.c \
