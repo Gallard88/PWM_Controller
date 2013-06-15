@@ -1,0 +1,10 @@
+PWM Controller Daemon
+
+A daemon to communicate with the PWM_Controller PCB.
+
+*** Notes ***
+
+The Makefile cannot yet install the PWM_Controllerd script into the rc system.
+This can be done manually by the command:
+
+update-rc.d -f PWM_Controllerd defaults
