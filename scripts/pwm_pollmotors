@@ -1,0 +1,15 @@
+#!/bin/bash
+
+POLL_TIME=5
+
+echo "Polling motors, $POLL_TIME apart"
+for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+do
+	echo "ch $i on"
+	PWM_Test $i 1 > /dev/NULL
+	sleep $POLL_TIME
+	echo "ch $i off"
+	PWM_Test $i 0 > /dev/NULL
+	sleep $POLL_TIME
+done
+echo "Poll complete"
