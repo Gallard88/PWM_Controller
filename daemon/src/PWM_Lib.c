@@ -141,6 +141,7 @@ void PWM_SetPWM(int ch, float duty)
     PWM_ptr->ch[ch].duty = duty;
     PWM_ptr->ch[ch].update = time(NULL);
     PWM_ptr->data_ready = 1;
+    PWM_ptr->updated |= (1<<ch);
 
     pthread_mutex_unlock( &PWM_ptr->access );
     kill( PWM_ptr->pid, SIGUSR1);

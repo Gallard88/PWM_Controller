@@ -31,6 +31,7 @@ extern "C" {
         int ver_mainor;
         unsigned data_ready:1;
         unsigned port_connected:1;
+        int updated;
         float voltage;
         float current;
         float temperature;

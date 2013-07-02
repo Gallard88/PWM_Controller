@@ -197,9 +197,13 @@ int Send_PWMChanelData(int fd)
     pthread_mutex_lock( &PWM_ptr->access );
     for ( i = 0; i < PWM_NUM_CHANELS; i ++ )
     {
-        newDuty = Check_PWM(PWM_ptr->ch[i].duty);
-        sprintf(cmd, "pwm: %2d %3d\r\n", i, (int)(newDuty * 100.0));
-        strcat(msg, cmd);
+        if ( PWM_ptr->updated & (1<<i) )
+        {
+          newDuty = Check_PWM(PWM_ptr->ch[i].duty);
+          sprintf(cmd, "pwm: %2d %3d\r\n", i, (int)(newDuty * 100.0));
+          strcat(msg, cmd);
+          PWM_ptr->updated &= ~(1<<i);
+        }
     }
     pthread_mutex_unlock( &PWM_ptr->access );
     return write(fd, msg, strlen(msg) );
