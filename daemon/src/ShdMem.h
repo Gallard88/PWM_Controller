@@ -12,6 +12,8 @@ extern "C" {
 // *****************
 #include <pthread.h>
 #include <time.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #define PWM_NUM_CHANELS			16
 #define PWM_FIRMWARE_SIZE		128
@@ -24,6 +26,9 @@ extern "C" {
     typedef struct
     {
         pthread_mutex_t access;
+        pid_t pid;
+        int ver_major;
+        int ver_mainor;
         unsigned data_ready:1;
         unsigned port_connected:1;
         float voltage;
@@ -32,8 +37,6 @@ extern "C" {
         char firmware[PWM_FIRMWARE_SIZE];
         PWM_Ch ch[PWM_NUM_CHANELS];
     } Pwm_Shd_Mem;
-
-//  extern Pwm_Shd_Mem *PWM_ptr;
 
 // *****************
 #define PWM_CON_SHM_SIZE		sizeof(Pwm_Shd_Mem)

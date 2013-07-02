@@ -163,12 +163,6 @@ void RunTimer(int sig)
 void Setup_Timer(int start)
 {
     struct itimerval timer;
-    struct sigaction sig;
-
-    // Install timer_handler as the signal handler for SIGVTALRM.
-    memset (&sig, 0, sizeof (struct sigaction));
-    sig.sa_handler = &RunTimer;
-    sigaction (SIGALRM , &sig, NULL);
 
     if ( start > 0 )
     {
@@ -208,6 +202,13 @@ void Setup_SignalHandler(void)
     sigaction (SIGINT , &sig, NULL);
     sigaction (SIGTERM , &sig, NULL);
     sigaction (SIGABRT , &sig, NULL);
+
+    // Install timer_handler as the signal handler for SIGVTALRM.
+    memset (&sig, 0, sizeof (struct sigaction));
+    sig.sa_handler = &RunTimer;
+    sigaction (SIGALRM , &sig, NULL);
+    sigaction (SIGUSR1 , &sig, NULL);
+    sigaction (SIGUSR2 , &sig, NULL);
 }
 
 // *****************
@@ -221,7 +222,9 @@ int main(int argc, char *argv[])
 
     openlog("PWM_Controller", LOG_PID , LOG_USER );
     syslog(LOG_NOTICE, "PWM_Controller Startup");
-
+#ifndef __DAEMONISE__
+    printf("PWM_Controller online\n");
+#endif
 
     // register shutdown function.
     atexit(System_Shutdown);
@@ -281,6 +284,7 @@ int main(int argc, char *argv[])
 #endif
         sleep(60);
     }
+    exit(0);
     return 0;
 }
 

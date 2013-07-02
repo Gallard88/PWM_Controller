@@ -47,6 +47,7 @@ void CL_Create_Shared_Memory( void )
     if (key  == -1)
     {
         syslog(LOG_EMERG, "ftok() failed");
+        perror("ftok() failed");
         exit(1);
     }
 
@@ -54,6 +55,7 @@ void CL_Create_Shared_Memory( void )
     if ((shmid = shmget(key, PWM_CON_SHM_SIZE, 0644 | IPC_CREAT)) == -1)
     {
         syslog(LOG_EMERG, "shmget()");
+        perror("shmget() - failed");
         exit(1);
     }
 
@@ -62,11 +64,13 @@ void CL_Create_Shared_Memory( void )
     if ((char *)PWM_ptr == (char *)(-1))
     {
         syslog(LOG_EMERG, "shmat()");
+        perror("shmat() - failed");
         exit(1);
     }
 
     memset(PWM_ptr, 0, sizeof(Pwm_Shd_Mem));
     pthread_mutex_init(&PWM_ptr->access, NULL);
+    PWM_ptr->pid = getpid();
 }
 
 // *****************

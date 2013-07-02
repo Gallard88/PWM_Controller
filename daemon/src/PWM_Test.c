@@ -43,6 +43,7 @@ int main( int argc, char *argv[] )
     else
     {
         printf("Hardware Connected\n");
+        printf("PID: %d\n", (int) PWM_GetPid());
     }
 
     if ( argc == 3 )

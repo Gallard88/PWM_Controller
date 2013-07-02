@@ -7,6 +7,10 @@ extern "C" {
 #endif
 
 // *****************
+#include <unistd.h>
+#include <sys/types.h>
+
+// *****************
     int PWM_Connect(void);
 
     extern const int PWM_Num_Chanels;
@@ -27,6 +31,9 @@ extern "C" {
 
 // *****************
     float PWM_GetPWM(int ch);
+
+    // *****************
+    pid_t PWM_GetPid(void);
 
     // *****************
     // *****************

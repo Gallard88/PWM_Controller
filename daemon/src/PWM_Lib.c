@@ -127,6 +127,8 @@ float PWM_GetPWM(int ch)
 // *****************
 void PWM_SetPWM(int ch, float duty)
 {
+    if ( PWM_ptr->port_connected == 0 )
+        return;
     if ( ch >= PWM_NUM_CHANELS )
         return;
 
@@ -141,6 +143,13 @@ void PWM_SetPWM(int ch, float duty)
     PWM_ptr->data_ready = 1;
 
     pthread_mutex_unlock( &PWM_ptr->access );
+    kill( PWM_ptr->pid, SIGUSR1);
+}
+
+// *****************
+pid_t PWM_GetPid(void)
+{
+  return PWM_ptr->pid;
 }
 
 // *****************
