@@ -46,7 +46,7 @@ void Setup_Timer(int start);
 
 // *****************
 // Options
-//#define __DAEMONISE__		1
+#define __DAEMONISE__		1
 // *****************
 void System_Shutdown(void)
 {

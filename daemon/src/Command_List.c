@@ -71,6 +71,8 @@ void CL_Create_Shared_Memory( void )
     memset(PWM_ptr, 0, sizeof(Pwm_Shd_Mem));
     pthread_mutex_init(&PWM_ptr->access, NULL);
     PWM_ptr->pid = getpid();
+    PWM_ptr->ver_major = VER_MAJOR;
+    PWM_ptr->ver_minor = VER_MINOR;
 }
 
 // *****************

@@ -15,6 +15,9 @@ extern "C" {
 #include <sys/types.h>
 #include <unistd.h>
 
+#define VER_MAJOR	1
+#define VER_MINOR	0
+
 #define PWM_NUM_CHANELS			16
 #define PWM_FIRMWARE_SIZE		128
     typedef struct
@@ -28,7 +31,7 @@ extern "C" {
         pthread_mutex_t access;
         pid_t pid;
         int ver_major;
-        int ver_mainor;
+        int ver_minor;
         unsigned data_ready:1;
         unsigned port_connected:1;
         int updated;

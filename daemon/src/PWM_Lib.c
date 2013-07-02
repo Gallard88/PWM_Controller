@@ -59,6 +59,13 @@ int PWM_Connect(void)
         perror("shmat");
         return -1;
     }
+    if (( PWM_ptr->ver_major != VER_MAJOR ) ||
+        ( PWM_ptr->ver_minor != VER_MINOR ))
+    {
+      printf("Library is not compatible with this version\n");
+      printf("Library Ver %d.%d, Prog Ver %d.%d\n", VER_MAJOR,VER_MINOR, PWM_ptr->ver_major, PWM_ptr->ver_minor);
+      return -1;
+    }
     return 0;
 }
 
