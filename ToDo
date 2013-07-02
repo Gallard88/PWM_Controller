@@ -4,8 +4,6 @@
     turn off if it doesn't receive an update within a set period of time.
 * Add Version information to libPWM.a, force library to disconnect if 
     the versions don't match.
-* Add PID info to shared memory, set up lib to send a signal every time a 
-    PWM chanel is updated.
 * Finish writing the script to make a symbolic link of a specific 
     USB FTDI chip.
 * Change access to PWM_controller shared memory so you don't need root access to connect.
