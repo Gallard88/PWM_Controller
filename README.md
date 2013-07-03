@@ -1,17 +1,14 @@
 PWM_Controller
 ==============
 
-Hardware, firmware, and daemon to control my 16 channel PWM controller.
-==============
-Firmware:
-Program can run all 16 PWM chanels.
-Can read voltage, current and temperature, though these need to be calibrated better.
+A 3 prong project.
+Hardware, Firmware, and a Linux based daemon.
 
-==============
-Daemon.
-Starts up, connects to serial port.
-Can process Temp, Voltage, Current data.
-Can send PWM data.
-Really needs a signal handler for ^C.
+Hardware is based around an Atmel ATMega2560.
+Communication is via USB.
+Can control upto 16 PWM chanels. Each chanel times out  and disables
+itself 7 seconds after it's last updated.
+The system can measure it's current consumption, ambient temperature, and input voltage.
+Library supplied to control via other software.
 
 
