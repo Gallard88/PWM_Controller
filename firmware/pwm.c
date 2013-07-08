@@ -28,6 +28,10 @@
 
 */
 /******************************************/
+int PWM_Timers[PWM_NUM_CHANELS];
+#define PWM_TIMEOUT		7	// seconds
+
+/******************************************/
 static void PWM_UpdateRegister(int ch, int value)
 {
   switch ( ch )
@@ -187,11 +191,33 @@ void PWM_SetDutyCycle(int ch, int duty)
   // convert from % to raw value.
   value = ( PWM_RangeCheck(duty) * 327 ) >> 7;
   PWM_UpdateRegister(ch, value);
+  PWM_Timers[ch] = PWM_TIMEOUT;
+}
+
+/******************************************/
+void PWM_RunTimer(void)
+{// here every 1 s
+	int i;
+	int *ptr;
+
+	for ( i = 0; i < PWM_NUM_CHANELS; i ++ )
+	{
+		if ( PWM_Timers[i] )
+		{
+			PWM_Timers[i]--;
+			if ( PWM_Timers[i] == 0 )
+			{
+			  PWM_UpdateRegister(i, 0);	// kill output
+		      PWM_Disable_Port(i);
+			}
+		}
+	}
 }
 
 /******************************************/
 void PWM_Initialise(void)
 {
+  int i;
   // set up the 3 timers that run the PWM module.
   TCCR1A = (1<<COM1A1) | (1<<COM1B1) | (1<<WGM10);
   TCCR1B = (1<<WGM12) |  (1<<CS11);
@@ -204,6 +230,10 @@ void PWM_Initialise(void)
 
   // make sure all chanels are turned off.
   PWM_Clear();
+  for ( i = 0; i < PWM_NUM_CHANELS; i ++ )
+  {
+    PWM_Timers[i] = 0;
+  }
 }
 
 /******************************************/

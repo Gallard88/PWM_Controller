@@ -10,6 +10,7 @@
 /******************************************/
 void PWM_Initialise(void);
 
+void PWM_RunTimer(void);
 void PWM_SetDutyCycle(int ch, int duty);
 
 /******************************************/

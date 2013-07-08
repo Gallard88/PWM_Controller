@@ -31,7 +31,14 @@
 #include "uart3.h"
 
 // *****************************************************************************
-const char Firmware_Version[] = "V 1.2";
+/**
+
+V1.4 --
+Added timeout to PWM commands.
+
+*/
+// *****************************************************************************
+const char Firmware_Version[] = "V 1.4";
 const char Firmware_Date[] = __DATE__;
 const char Firmware_Time[] = __TIME__;
 
@@ -63,14 +70,16 @@ void Run_USB_Serial(void)
         if ( cmd >= 0 )
         {
           Com_Timer = 0;
-          U1_TxPutsf("OK\r\n");
+//          U1_TxPutsf("OK\r\n");
         }
+/*
         else
         {
           U1_TxPutsf("?>");
           U1_TxPuts(USB_LineBuf);
           U1_TxPutsf("<\r\n");
         }
+*/
         USB_LineBuf[0] = 0;
       }
     }
@@ -162,6 +171,10 @@ void WDT_Prescaler_Change(void)
 }
 
 // *****************************************************************************
+#define TOGGLE_HEARTBEAT_LED()	PORTG ^= 0x1
+#define START_POWER_LED()		PORTC ^= 0x1
+
+// *****************************************************************************
 int main( void )
 {
   //-----------------------------------------------
@@ -178,13 +191,10 @@ int main( void )
 
   Timer_Init();	// Heart Beat Timer.
 
-  // ADC
   ADC_Init();
 
   U1_Init ( 115200 );	// USB Coms.
   U3_Init ( 115200 );	// Expansion port.
-
-  // I2C - To read time data from clock. - To do
 
   PWM_Initialise();
 
@@ -192,11 +202,9 @@ int main( void )
   // Initialise Sub-modules.
   PWM_Cmds_Init();
 
-  // RTC Clock  - To do
-
   //-----------------------------------------------
   Read_Firmware(NULL);
-  PORTC ^= 0x1;
+  START_POWER_LED();
 
   // Run main loop.
   for ( ; ; )
@@ -215,23 +223,11 @@ int main( void )
     if ( Timer_Is100ms() )
     {
       PWM_Cmds_Run();
-      /*
-      			Com_Timer++;
-      			if ( Com_Timer > EEpromRead_1_default(EE_COM_TIMEOUT, 80) )
-      			{
-      				Com_Timer = 0;
-      				if ( !PWM_isAlarm() )
-      				{
-      //  				PWM_SetAlarm(0x80);
-      					U1_TxPutsf("Coms Timeout\r\n");
-      				}
-      			}
-      */
     }
-
     if ( Timer_Is1s() )
     {
-      PORTG ^= 0x1;
+      TOGGLE_HEARTBEAT_LED();
+	  PWM_RunTimer();
     }
   }
 }
