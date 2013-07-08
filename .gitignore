@@ -26,7 +26,7 @@
 *.lis
 *.cof
 *.dbg
-*.hex
+PWM_CONTROLLER.hex
 *.lk
 *.lst
 *.mp
