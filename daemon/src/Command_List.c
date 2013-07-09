@@ -52,7 +52,7 @@ void CL_Create_Shared_Memory( void )
     }
 
     // connect to (and possibly create) the segment:
-    if ((shmid = shmget(key, PWM_CON_SHM_SIZE, 0644 | IPC_CREAT)) == -1)
+    if ((shmid = shmget(key, PWM_CON_SHM_SIZE, 0777 | IPC_CREAT)) == -1)
     {
         syslog(LOG_EMERG, "shmget()");
         perror("shmget() - failed");
