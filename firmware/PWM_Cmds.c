@@ -28,29 +28,7 @@
 int Ext_Current;
 
 unsigned int Current_Update_Timer;
-unsigned int Temperature_Update_Timer;
 unsigned int Volt_Update_Timer;
-
-#define TEMP_AVG_BUFFER_SIZE	8
-int Temp_Avg_Buffer[TEMP_AVG_BUFFER_SIZE];
-ADC_Avg_Filter Temp_AVG =
-{
-  0,	// ch
-  1, 	// scale_div
-  1, 	// scale_mult
-  Temp_Avg_Buffer, // *buffer
-  0, // buf_ofs
-  TEMP_AVG_BUFFER_SIZE, // buf_size
-  0,   // pre offset
-  282, // post offset
-  0, // avg
-};
-/**
-619 = 25.9 C
-617 = 24.9 C
-616 = 24.8 C
-613 = 23
-**/
 
 #define VOLT_AVG_BUFFER_SIZE	8
 int Volt_Avg_Buffer[VOLT_AVG_BUFFER_SIZE];
@@ -307,17 +285,27 @@ void Run_Current_Sensor(void)
 }
 
 //*****************************************************************************
+unsigned int Temperature_Update_Timer;
+#define ZERO_CELCIUS  273				  
+/**
+619 = 25.9 C
+617 = 24.9 C
+616 = 24.8 C
+613 = 23
+**/
+//*****************************************************************************
 void Run_Temp_Sensor(void)
 {
-  int time, value;
+  int time;
+  long raw, value;
   char cmd[50];
 
-  ADC_RunAvgFilter( &Temp_AVG );
   time = EEpromRead_2_default(EE_TEMP_UPDATE, 10);
   if (( time > 0 ) && ( Temperature_Update_Timer > time ))
   {
     Temperature_Update_Timer = 0;
-    value = Temp_AVG.average;
+    raw = (ADC_Read(0) * 124) >> 8;				 
+    value = raw - ZERO_CELCIUS;
     csprintf(cmd,"temp: %d\r\n", value);
     U1_TxPuts(cmd);
   }
@@ -355,9 +343,6 @@ void PWM_Cmds_Init(void)
 {
   // Current Sensor
   ADC_LoadAvgFilter( &Curr_AVG);
-
-  // Temp Sensor
-  ADC_LoadAvgFilter( &Temp_AVG);
 
   // Temp Sensor
   ADC_LoadAvgFilter( &Volt_AVG);
