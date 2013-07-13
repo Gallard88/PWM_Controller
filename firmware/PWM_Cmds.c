@@ -284,7 +284,7 @@ void Run_Temp_Sensor(void)
   if (( time > 0 ) && ( Temperature_Update_Timer > time ))
   {
     Temperature_Update_Timer = 0;
-    raw = (ADC_Read(0) * 124) >> 8;				 
+    raw = ((long)ADC_Read(0) * 124) >> 8;				 
     value = raw - ZERO_CELCIUS;
     csprintf(cmd,"temp: %d\r\n", value);
     U1_TxPuts(cmd);
