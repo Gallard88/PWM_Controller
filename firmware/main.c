@@ -36,9 +36,11 @@
 V1.4 --
 Added timeout to PWM commands.
 
+V1.5 -- 13 July 2013
+Calibrated Voltage and Temp sensors
 */
 // *****************************************************************************
-const char Firmware_Version[] = "V 1.4";
+const char Firmware_Version[] = "V 1.5";
 const char Firmware_Date[] = __DATE__;
 const char Firmware_Time[] = __TIME__;
 
