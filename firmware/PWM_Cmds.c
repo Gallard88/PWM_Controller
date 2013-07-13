@@ -28,27 +28,7 @@
 int Ext_Current;
 
 unsigned int Current_Update_Timer;
-unsigned int Volt_Update_Timer;
 
-#define VOLT_AVG_BUFFER_SIZE	8
-int Volt_Avg_Buffer[VOLT_AVG_BUFFER_SIZE];
-ADC_Avg_Filter Volt_AVG =
-{
-  1,	// ch
-  8, 	// scale_div
-  160, 	// scale_mult
-  Volt_Avg_Buffer, // *buffer
-  0, // buf_ofs
-  VOLT_AVG_BUFFER_SIZE, // buf_size
-  0, // pre offset
-  0, // post offset
-  0, // avg
-};
-/**
-216 = 11.8V
-= 0.54 ratio for 100mV Res.
-
-*/
 #define CURR_AVG_BUFFER_SIZE	4
 int Current_Avg_Buffer[CURR_AVG_BUFFER_SIZE];
 
@@ -313,18 +293,25 @@ void Run_Temp_Sensor(void)
 }
 
 //*****************************************************************************
+unsigned int Volt_Update_Timer;
+/**
+124 = 6.85 V
+218 = 11.97 V
+= 0.546 ratio for 100mV Res.
+*/
+//*****************************************************************************
 void Run_Volt_Sensor(void)
 {
-  int time, value;
+  int time; 
+  long value;
   char cmd[50];
 
-  ADC_RunAvgFilter( &Volt_AVG );
   time = EEpromRead_2_default(EE_VOLT_UPDATE, 10);
   if (( time > 0 ) && ( Volt_Update_Timer > time ))
   {
     Volt_Update_Timer = 0;
-    value = Volt_AVG.average;
-    csprintf(cmd,"volt: %d.%d\r\n", value /10, value %10);
+    value = ((long)ADC_Read(1)* 141) >> 8;
+    csprintf(cmd,"volt: %d.%01d\r\n", value / 10, value % 10);
     U1_TxPuts(cmd);
   }
   Volt_Update_Timer++;
@@ -343,9 +330,6 @@ void PWM_Cmds_Init(void)
 {
   // Current Sensor
   ADC_LoadAvgFilter( &Curr_AVG);
-
-  // Temp Sensor
-  ADC_LoadAvgFilter( &Volt_AVG);
 }
 
 //*****************************************************************************
