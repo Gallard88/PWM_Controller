@@ -295,8 +295,8 @@ void Run_Temp_Sensor(void)
 //*****************************************************************************
 unsigned int Volt_Update_Timer;
 /**
-124 = 6.85 V
-218 = 11.97 V
+401 = 7.9 V
+609 = 11.97 V
 = 0.546 ratio for 100mV Res.
 */
 //*****************************************************************************
@@ -304,14 +304,24 @@ void Run_Volt_Sensor(void)
 {
   int time; 
   long value;
+  int millivolt;
   char cmd[50];
+  char data[50];
 
   time = EEpromRead_2_default(EE_VOLT_UPDATE, 10);
   if (( time > 0 ) && ( Volt_Update_Timer > time ))
   {
     Volt_Update_Timer = 0;
-    value = ((long)ADC_Read(1)* 141) >> 8;
-    csprintf(cmd,"volt: %d.%01d\r\n", value / 10, value % 10);
+    value = (ADC_Read(1)* 50) >> 8;
+	millivolt = value;
+	// There is a very strange bug that I can't work out where the second modifier
+	// in csprintf is always 0, regardless of what it should be.
+	// Also if I add a third modifier (%d %d %d), but only 2 arguments (,A, B)
+	// the middle value is 0, but 1 & 2 are correct.
+	// hence to fix this I have split the string over 2 statements.
+    csprintf(cmd,"volt: %d.", value/10 );
+	csprintf(data,"%d\r\n", millivolt%10);
+	strcat(cmd, data);
     U1_TxPuts(cmd);
   }
   Volt_Update_Timer++;
