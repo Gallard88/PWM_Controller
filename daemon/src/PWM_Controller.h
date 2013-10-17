@@ -30,6 +30,14 @@ extern "C" {
     void PWM_SetPWM(int ch, float duty);
 
 // *****************
+    struct PWM_Update
+    {
+      int ch;
+      float duty;
+    };
+
+    void PWM_SetMultiplePWM(const struct PWM_Update *update, int num_chanels);
+// *****************
     float PWM_GetPWM(int ch);
 
     // *****************
