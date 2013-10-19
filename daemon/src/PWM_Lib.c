@@ -22,113 +22,119 @@
 #include "PWM_Controller.h"
 
 // *****************
-Pwm_Shd_Mem *PWM_ptr;
 const int PWM_Num_Chanels = PWM_NUM_CHANELS;
 
 // *****************
-int PWM_Connect(void)
+PWM_Con_t PWM_Connect(void)
 {
-    key_t key;
-    int shmid;
-    int fd;
+  key_t key;
+  int shmid;
+  int fd;
+  PWM_Con_t ptr;
 
-    // Make sure the file exists.
-    fd = open(PWM_KEY_FILE, O_RDWR, S_IRWXU | S_IRWXG | S_IRWXO);
-    /* Only wanted to make sure that the file exists. */
-    close(fd);
+  // Make sure the file exists.
+  fd = open(PWM_KEY_FILE, O_RDWR, S_IRWXU | S_IRWXG | S_IRWXO);
+  /* Only wanted to make sure that the file exists. */
+  close(fd);
 
-    // Generate memory key. */
-    key = ftok(PWM_KEY_FILE, PWM_MEM_KEY);
-    if (key  == -1)
-    {
-        perror("ftok");
-        return -1;
-    }
+  // Generate memory key. */
+  key = ftok(PWM_KEY_FILE, PWM_MEM_KEY);
+  if (key  == -1) {
+    perror("ftok");
+    return NULL;
+  }
 
-    // connect to (and possibly create) the segment:
-    if ((shmid = shmget(key, PWM_CON_SHM_SIZE, O_RDWR)) == -1)
-    {
-        perror("shmget");
-        return -1;
-    }
+  // connect to (and possibly create) the segment:
+  if ((shmid = shmget(key, PWM_CON_SHM_SIZE, O_RDWR)) == -1) {
+    perror("shmget");
+    return NULL;
+  }
 
-    // attach to the segment to get a pointer to it:
-    PWM_ptr = shmat(shmid, (void *)0, 0);
-    if ((char *)PWM_ptr == (char *)(-1))
-    {
-        perror("shmat");
-        return -1;
-    }
-    if (( PWM_ptr->ver_major != VER_MAJOR ) ||
-        ( PWM_ptr->ver_minor != VER_MINOR ))
-    {
-      printf("Library is not compatible with this version\n");
-      printf("Library Ver %d.%d, Prog Ver %d.%d\n", VER_MAJOR,VER_MINOR, PWM_ptr->ver_major, PWM_ptr->ver_minor);
-      return -1;
-    }
+  // attach to the segment to get a pointer to it:
+  ptr = shmat(shmid, (void *)0, 0);
+  if ((char *)ptr == (char *)(-1)) {
+    perror("shmat");
+    return NULL;
+  }
+  if (( ptr->ver_major != VER_MAJOR ) ||
+      ( ptr->ver_minor != VER_MINOR )) {
+    printf("Library is not compatible with this version\n");
+    printf("Library Ver %d.%d, Prog Ver %d.%d\n", VER_MAJOR,VER_MINOR, ptr->ver_major, ptr->ver_minor);
+    return NULL;
+  }
+  return ptr;
+}
+
+// *****************
+int PWM_isConnected(PWM_Con_t ptr)
+{
+  int con;
+  if ( ptr == NULL )
     return 0;
+  pthread_mutex_lock( &ptr->access );
+  con = ptr->port_connected;
+  pthread_mutex_unlock( &ptr->access );
+
+  return con;
 }
 
 // *****************
-int PWM_isConnected(void)
+float PWM_GetTemp(PWM_Con_t ptr)
 {
-    int con;
-    pthread_mutex_lock( &PWM_ptr->access );
-    con = PWM_ptr->port_connected;
-    pthread_mutex_unlock( &PWM_ptr->access );
+  float value;
 
-    return con;
+  if ( ptr == NULL )
+    return 0.0;
+  pthread_mutex_lock( &ptr->access );
+  value = ptr->temperature;
+  pthread_mutex_unlock( &ptr->access );
+
+  return value;
 }
 
 // *****************
-float PWM_GetTemp(void)
+float PWM_GetCurrent(PWM_Con_t ptr)
 {
-    float value;
+  float value;
 
-    pthread_mutex_lock( &PWM_ptr->access );
-    value = PWM_ptr->temperature;
-    pthread_mutex_unlock( &PWM_ptr->access );
+  if ( ptr == NULL )
+    return 0.0;
+  pthread_mutex_lock( &ptr->access );
+  value = ptr->current;
+  pthread_mutex_unlock( &ptr->access );
 
-    return value;
+  return value;
 }
 
 // *****************
-float PWM_GetCurrent(void)
+float PWM_GetVoltage(PWM_Con_t ptr)
 {
-    float value;
+  float value;
 
-    pthread_mutex_lock( &PWM_ptr->access );
-    value = PWM_ptr->current;
-    pthread_mutex_unlock( &PWM_ptr->access );
+  if ( ptr == NULL )
+    return 0.0;
+  pthread_mutex_lock( &ptr->access );
+  value = ptr->voltage;
+  pthread_mutex_unlock( &ptr->access );
 
-    return value;
+  return value;
 }
 
 // *****************
-float PWM_GetVoltage(void)
+float PWM_GetPWM(PWM_Con_t ptr, int ch)
 {
-    float value;
+  float value;
 
-    pthread_mutex_lock( &PWM_ptr->access );
-    value = PWM_ptr->voltage;
-    pthread_mutex_unlock( &PWM_ptr->access );
+  if ( ptr == NULL )
+    return 0.0;
+  if ( ch >= PWM_NUM_CHANELS )
+    return 0;
 
-    return value;
-}
+  pthread_mutex_lock( &ptr->access );
+  value = ptr->ch[ch].duty;
+  pthread_mutex_unlock( &ptr->access );
 
-// *****************
-float PWM_GetPWM(int ch)
-{
-    float value;
-
-    if ( ch >= PWM_NUM_CHANELS )
-        return 0;
-
-    pthread_mutex_lock( &PWM_ptr->access );
-    value = PWM_ptr->ch[ch].duty;
-    pthread_mutex_unlock( &PWM_ptr->access );
-
-    return value;
+  return value;
 }
 
 // *****************
@@ -142,52 +148,57 @@ static float Verify_PWM(float value)
 }
 
 // *****************
-void PWM_SetPWM(int ch, float duty)
+void PWM_SetPWM(PWM_Con_t ptr, int ch, float duty)
 {
-    if ( PWM_ptr->port_connected == 0 )
-        return;
-    if ( ch >= PWM_NUM_CHANELS )
-        return;
+  if ( ptr == NULL )
+    return;
+  if ( ptr->port_connected == 0 )
+    return;
+  if ( ch >= PWM_NUM_CHANELS )
+    return;
 
-    pthread_mutex_lock( &PWM_ptr->access );
-    PWM_ptr->ch[ch].duty = Verify_PWM(duty);
-    PWM_ptr->ch[ch].update = time(NULL);
-    PWM_ptr->data_ready = 1;
-    PWM_ptr->updated |= (1<<ch);
+  pthread_mutex_lock( &ptr->access );
+  ptr->ch[ch].duty = Verify_PWM(duty);
+  ptr->ch[ch].update = time(NULL);
+  ptr->data_ready = 1;
+  ptr->updated |= (1<<ch);
 
-    pthread_mutex_unlock( &PWM_ptr->access );
-    kill( PWM_ptr->pid, SIGUSR1);
+  pthread_mutex_unlock( &ptr->access );
+  kill( ptr->pid, SIGUSR1);
 }
 
 // *****************
-void PWM_SetMultiplePWM(const struct PWM_Update *update, int num_chanels)
+void PWM_SetMultiplePWM(PWM_Con_t ptr, const struct PWM_Update *update, int num_chanels)
 {
   time_t current_time= time(NULL);
 
-	if ( PWM_ptr->port_connected == 0 )
-			return;
-  pthread_mutex_lock( &PWM_ptr->access );
-  for ( int i = 0; i < num_chanels; i ++ )
-  {
-		int ch;
+  if ( ptr == NULL )
+    return ;
+  if ( ptr->port_connected == 0 )
+    return;
+  pthread_mutex_lock( &ptr->access );
+  for ( int i = 0; i < num_chanels; i ++ ) {
+    int ch;
 
-		ch = update[i].ch;
+    ch = update[i].ch;
     if ( ch >= PWM_NUM_CHANELS )
-        continue;
+      continue;
 
-    PWM_ptr->ch[ch].duty = Verify_PWM(update[i].duty);
-    PWM_ptr->ch[ch].update = current_time;
-    PWM_ptr->updated |= (1<<ch);
+    ptr->ch[ch].duty = Verify_PWM(update[i].duty);
+    ptr->ch[ch].update = current_time;
+    ptr->updated |= (1<<ch);
   }
-  PWM_ptr->data_ready = 1;
-  pthread_mutex_unlock( &PWM_ptr->access );
-  kill( PWM_ptr->pid, SIGUSR1);
+  ptr->data_ready = 1;
+  pthread_mutex_unlock( &ptr->access );
+  kill( ptr->pid, SIGUSR1);
 }
 
 // *****************
-pid_t PWM_GetPid(void)
+pid_t PWM_GetPid(PWM_Con_t ptr)
 {
-  return PWM_ptr->pid;
+  if ( ptr == NULL )
+    return 0;
+  return ptr->pid;
 }
 
 // *****************

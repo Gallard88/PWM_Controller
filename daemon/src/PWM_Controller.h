@@ -10,41 +10,41 @@ extern "C" {
 #include <unistd.h>
 #include <sys/types.h>
 
+  typedef struct PWM_Shared_Mem *PWM_Con_t;
 // *****************
-    int PWM_Connect(void);
+  PWM_Con_t PWM_Connect(void);
 
-    extern const int PWM_Num_Chanels;
-// *****************
-    int PWM_isConnected(void);
+  extern const int PWM_Num_Chanels;
+  // *****************
+  int PWM_isConnected(PWM_Con_t ptr);
 
-// *****************
-    float PWM_GetTemp(void);
+  // *****************
+  float PWM_GetTemp(PWM_Con_t ptr);
 
-// *****************
-    float PWM_GetCurrent(void);
+  // *****************
+  float PWM_GetCurrent(PWM_Con_t ptr);
 
-// *****************
-    float PWM_GetVoltage(void);
+  // *****************
+  float PWM_GetVoltage(PWM_Con_t ptr);
 
-// *****************
-    void PWM_SetPWM(int ch, float duty);
+  // *****************
+  float PWM_GetPWM(PWM_Con_t ptr, int ch);
 
-// *****************
-    struct PWM_Update
-    {
-      int ch;
-      float duty;
-    };
+  // *****************
+  struct PWM_Update {
+    int ch;
+    float duty;
+  };
 
-    void PWM_SetMultiplePWM(const struct PWM_Update *update, int num_chanels);
-// *****************
-    float PWM_GetPWM(int ch);
+  void PWM_SetPWM(PWM_Con_t ptr, int ch, float duty);
+  // *****************
+  void PWM_SetMultiplePWM(PWM_Con_t ptr, const struct PWM_Update *update, int num_chanels);
 
-    // *****************
-    pid_t PWM_GetPid(void);
+  // *****************
+  pid_t PWM_GetPid(PWM_Con_t ptr);
 
-    // *****************
-    // *****************
+  // *****************
+  // *****************
 #ifdef __cplusplus
 }
 #endif

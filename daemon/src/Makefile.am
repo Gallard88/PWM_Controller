@@ -9,6 +9,7 @@ PWM_Controller_PROGRAMS= PWM_Controller PWM_Test
 lib_LIBRARIES = libPWMControl.a
 libPWMControl_a_SOURCES = \
         PWM_Lib.c \
+	ShdMem.h \
         PWM_Controller.h
 
 include_HEADERS = PWM_Controller.h
