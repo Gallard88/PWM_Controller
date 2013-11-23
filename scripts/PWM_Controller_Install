@@ -1,6 +1,0 @@
-#!/bin/bash
-
-install PWM_Controllerd /etc/init.d
-chmod +x /etc/init.d/PWM_Controllerd
-update-rc.d PWM_Controllerd defaults
-

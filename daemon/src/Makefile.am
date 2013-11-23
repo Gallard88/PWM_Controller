@@ -20,7 +20,7 @@ PWM_Files_DATA= PWM_Controller.conf
 
 # Install that start up script.
 PWM_INITdir = /etc/init.d/
-PWM_INIT_Data=PWM_Controllerd
+PWM_INIT_Data=PWM_Controller.sh
 
 PWM_Controller_SOURCES= \
 	CmdParse.c \

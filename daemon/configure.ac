@@ -1,5 +1,5 @@
 
-AC_INIT([PWM_Controller], [1.0], [thomasburns88@gmail.com])
+AC_INIT([PWM_Controller],[1.0],[thomasburns88@gmail.com])
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 AC_PROG_CC
 AC_PROG_RANLIB
