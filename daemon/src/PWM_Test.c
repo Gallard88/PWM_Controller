@@ -32,7 +32,7 @@ int main( int argc, char *argv[] )
 
   ptr = PWM_Connect();
   if ( ptr == NULL ) {
-    printf("Couldn't connect\nIs PWM_Controller running?");
+    printf("Couldn't connect\nIs PWM_Controller running?\n");
     return 0;
   }
 
