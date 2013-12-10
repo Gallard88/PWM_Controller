@@ -104,55 +104,47 @@ const char Restart_Cmd[] = "restart\r\n";
 const char Get_Time[] = "time\r\n";
 
 // *****************
-int Send_TempData(int fd, JSON_Object *J_Object)
+int Send_TempData(int fd, int update)
 {
   char cmd[100];
   int rv;
-  int value;
 
   // send temp limit,
-//	value = (int)json_object_get_number(J_Object, "Temp_Limit");
   sprintf(cmd, "temp: %d\r\n", 50);
   rv = write (fd, cmd, strlen(cmd));
 
   // send temp update rate
-  value = (int)json_object_get_number(J_Object, "Temp_Update");
-  sprintf(cmd, "update: temp %d\r\n", value);
+  sprintf(cmd, "update: temp %d\r\n", update);
   rv = write (fd, cmd, strlen(cmd));
 
   return rv;
 }
 
 // *****************
-int Send_VoltData(int fd, JSON_Object *J_Object)
+int Send_VoltData(int fd, int update)
 {
   char cmd[100];
   int rv;
-  int value;
 
   // send voolt update rate
-  value = (int)json_object_get_number(J_Object, "Volt_Update");
-  sprintf(cmd, "update: volt %d\r\n", value);
+  sprintf(cmd, "update: volt %d\r\n", update);
   rv = write (fd, cmd, strlen(cmd));
 
   return rv;
 }
 
 // *****************
-int Send_CurrentData(int fd, JSON_Object *J_Object)
+int Send_CurrentData(int fd, int update)
 {
   char cmd[100];
   int rv;
-  int value;
 
   // send current limit,
-//	value = (int)json_object_get_number(J_Object, "Current_Limit");
   sprintf(cmd, "current: %d\r\n", 50);
   rv = write (fd, cmd, strlen(cmd));
 
   // send current update rate
-  value = (int)json_object_get_number(J_Object, "Current_Update");
-  sprintf(cmd, "update: current %d\r\n", value);
+  sprintf(cmd, "update: current %d\r\n", update);
   rv = write (fd, cmd, strlen(cmd));
 
   return rv;

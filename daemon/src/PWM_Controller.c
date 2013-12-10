@@ -26,8 +26,6 @@
 // *****************
 const char PWM_Con_Settings_file[] = "/etc/PWM_Controller.conf";
 
-JSON_Value *JSON_Settings;
-JSON_Object *J_Object;
 
 int Serial_fd;
 
@@ -73,9 +71,15 @@ void Check_Serial(int rv)
 }
 
 // *****************
+static char *PortName;
+// *****************
 void Read_Settings(void)
 {
+  JSON_Value *JSON_Settings;
+  JSON_Object *J_Object;
   int rv;
+  int length;
+  const char *ptr;
 
   JSON_Settings = json_parse_file(PWM_Con_Settings_file);
   rv = json_value_get_type(JSON_Settings);
@@ -90,22 +94,27 @@ void Read_Settings(void)
     syslog(LOG_EMERG, "JSON: Failed to get object" );
     exit( -1);
   }
+
+  ptr = json_object_get_string(J_Object, "Serial_Port");
+  if ( ptr != NULL ) {
+    length = strlen(ptr);
+    PortName = malloc(length+1);
+    strncpy(PortName, ptr, length);
+    PortName[length] = 0;
+  } else {
+    syslog(LOG_NOTICE, "Com Port name not set");
+    exit(-1);
+  }
+  json_value_free(JSON_Settings);
 }
 
 // *****************
 void Connect_To_Port(void)
 {
-  const char *name = json_object_get_string(J_Object, "Serial_Port");
-
-  if ( name == NULL ) {
-    syslog(LOG_NOTICE, "Com Port name not set");
-    exit(-1);
-  }
-
-  Serial_fd = Serial_Openport((char *)name, 115200, 0,0 );
+  Serial_fd = Serial_Openport(PortName, 115200, 0,0 );
   if ( Serial_fd < 0 )
     return;
-  syslog(LOG_NOTICE, "Com Port %s connected", name);
+  syslog(LOG_NOTICE, "Com Port %s connected", PortName);
 #ifndef __DAEMONISE__
   printf("Port Running\n");
 #endif
@@ -117,13 +126,13 @@ void Connect_To_Port(void)
   Send_GetTime(Serial_fd);
   // send temp limit,
   // send temp update rate
-  Send_TempData(Serial_fd, J_Object);
+  Send_TempData(Serial_fd, 10);
 
   // send current limit,
   // send current update rate
-  Send_CurrentData(Serial_fd, J_Object);
+  Send_CurrentData(Serial_fd, 10);
 
-  Send_VoltData(Serial_fd, J_Object);
+  Send_VoltData(Serial_fd, 10);
 
   // force unit to restart
   Send_Restart(Serial_fd);

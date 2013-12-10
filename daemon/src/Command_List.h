@@ -3,7 +3,6 @@
 #ifndef __CMD_LIST_H__
 #define __CMD_LIST_H__
 // *****************
-#include "parson.h"
 #include "CmdParse.h"
 
 // *****************
@@ -18,9 +17,9 @@ void CL_SetDisconnected(void);
 // Send data commands
 int Send_GetTime(int fd);
 int Send_SystemTime(int fd, unsigned long time);
-int Send_TempData(int fd, JSON_Object *J_Object);
-int Send_VoltData(int fd, JSON_Object *J_Object);
-int Send_CurrentData(int fd, JSON_Object *J_Object);
+int Send_TempData(int fd, int update);
+int Send_VoltData(int fd, int update);
+int Send_CurrentData(int fd, int update);
 int Send_PWMChanelData(int fd);
 int Send_Restart(int fd);
 
