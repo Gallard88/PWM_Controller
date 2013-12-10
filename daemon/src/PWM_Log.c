@@ -107,7 +107,6 @@ int main( int argc, char *argv[] )
 
   Setup_Timer();
 	Setup_SignalHandler();
-	RunTimer(0);
 	while (1)
 		sleep(600);
 
