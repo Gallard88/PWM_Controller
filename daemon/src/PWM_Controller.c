@@ -207,6 +207,8 @@ void Setup_SignalHandler(void)
 }
 
 // *****************
+char *args[] = {(char *) 0};
+// *****************
 int main(int argc, char *argv[])
 {
   int loop = 1;
@@ -214,6 +216,7 @@ int main(int argc, char *argv[])
   int length;
   fd_set readfds;
   struct timeval select_time;
+  pid_t pid;
 
   openlog("PWM_Controller", LOG_PID , LOG_USER );
   syslog(LOG_NOTICE, "PWM_Controller Startup");
@@ -237,6 +240,15 @@ int main(int argc, char *argv[])
 #else
   printf("System starting - Debug mode\n");
 #endif
+  pid = fork();
+  if ( pid == 0 ) { // child
+    syslog(LOG_ERR,"Forking Log module");
+    execv("/usr/sbin/PWM_Log", args);
+
+  } else if ( pid< 0 ) { // error
+    syslog(LOG_ERR,"Fork Error");
+    return -1;
+  }
 
   Setup_SignalHandler();
 
