@@ -29,8 +29,8 @@ LogRotate_Data = PWM_Logrotate
 PWM_Controller_SOURCES= \
 	CmdParse.c \
 	CmdParse.h \
-	Command_List.c \
-	Command_List.h \
+	Cmds_PWM.c \
+	Cmds_PWM.h \
 	parson.c \
 	parson.h \
 	Serial.c \

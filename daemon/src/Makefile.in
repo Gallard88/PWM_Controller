@@ -86,7 +86,7 @@ libPWMControl_a_LIBADD =
 am_libPWMControl_a_OBJECTS = PWM_Lib.$(OBJEXT)
 libPWMControl_a_OBJECTS = $(am_libPWMControl_a_OBJECTS)
 PROGRAMS = $(PWM_Controller_PROGRAMS)
-am_PWM_Controller_OBJECTS = CmdParse.$(OBJEXT) Command_List.$(OBJEXT) \
+am_PWM_Controller_OBJECTS = CmdParse.$(OBJEXT) Cmds_PWM.$(OBJEXT) \
 	parson.$(OBJEXT) Serial.$(OBJEXT) PWM_Controller.$(OBJEXT)
 PWM_Controller_OBJECTS = $(am_PWM_Controller_OBJECTS)
 PWM_Controller_LDADD = $(LDADD)
@@ -226,8 +226,8 @@ LogRotate_Data = PWM_Logrotate
 PWM_Controller_SOURCES = \
 	CmdParse.c \
 	CmdParse.h \
-	Command_List.c \
-	Command_List.h \
+	Cmds_PWM.c \
+	Cmds_PWM.h \
 	parson.c \
 	parson.h \
 	Serial.c \
@@ -367,7 +367,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CmdParse.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Command_List.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Cmds_PWM.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PWM_Controller.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PWM_Lib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PWM_Log.Po@am__quote@

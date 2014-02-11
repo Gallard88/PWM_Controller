@@ -21,59 +21,31 @@
 #include "parson.h"
 #include "PWM_Controller.h"
 #include "Serial.h"
-#include "Command_List.h"
-
-// *****************
-const char PWM_Con_Settings_file[] = "/etc/PWM_Controller.conf";
-
-
-int Serial_fd;
-
-#define SERIAL_BUF_SIZE 4096
-char SerialRead_Buf[SERIAL_BUF_SIZE];
-
-//CmdFuncList_t Cmd_List;
-
-#define SYSTEM_DELAY	10000
-const struct timeval system_time = {0,SYSTEM_DELAY};
-
-#define TIMER_TICK		100000 // ms
-
-// *****************
-void Setup_Timer(int start);
+#include "Cmds_PWM.h"
 
 // *****************
 // Options
 #define __DAEMONISE__		1
-// *****************
-void System_Shutdown(void)
-{
-  CL_CLearSharedMemory();
-  syslog(LOG_EMERG, "System shutting down");
-  closelog();
-#ifndef __DAEMONISE__
-  printf("Shutdown\n");
-#endif
-}
 
 // *****************
-void Check_Serial(int rv)
-{
-  if ( rv < 0 ) {
-    Setup_Timer(0);
-    CL_SetDisconnected();
-    Serial_fd = Serial_ClosePort(Serial_fd);
-    syslog(LOG_EMERG, "Serial coms lost, %d", errno);
-#ifndef __DAEMONISE__
-    printf("Serial Lost\n");
-#endif
-  }
-}
+const char PWM_Con_Settings_file[] = "/etc/PWM_Controller.conf";
+static int Serial_fd;
 
-// *****************
+#define SYSTEM_DELAY		 10000	// ms
+#define TIMER_TICK			100000  // ms
+static const struct timeval system_time = {0,SYSTEM_DELAY};
+
 static char *PortName;
+
 // *****************
-void Read_Settings(void)
+static void Setup_Timer(int start);
+static void System_Shutdown(void);
+static void Check_Serial(int rv);
+static void Read_Settings(void);
+static void Fork_LogModule(void);
+
+// *****************
+static void Read_Settings(void)
 {
   JSON_Value *JSON_Settings;
   JSON_Object *J_Object;
@@ -115,54 +87,28 @@ void Connect_To_Port(void)
   if ( Serial_fd < 0 )
     return;
   syslog(LOG_NOTICE, "Com Port %s connected", PortName);
-#ifndef __DAEMONISE__
-  printf("Port Running\n");
-#endif
-  CL_SetConnected();
+  PWM_SetConnected();
   Setup_Timer(1);
 
   // send start up commands.
-  // read time
-  Send_GetTime(Serial_fd);
-  // send temp limit,
   // send temp update rate
-  Send_TempData(Serial_fd, 10);
-
-  // send current limit,
   // send current update rate
-  Send_CurrentData(Serial_fd, 10);
+  // send voltage update rate
+	PWM_SetStartup(Serial_fd, 10);
 
-  Send_VoltData(Serial_fd, 10);
-
-  // force unit to restart
-  Send_Restart(Serial_fd);
-#ifndef __DAEMONISE__
-  printf("Restart sent\n");
-#endif
+	// force unit to restart
+  PWM_Send_Restart(Serial_fd);
 }
 
 // *****************
 void RunTimer(int sig)
-{
-  // receive signal, set up next tick.
-  static int write_time;
-  struct timeval tv;
-  int rv = 1;
+{ // receive signal, set up next tick.
 
-  if ( Serial_fd < 0 )
-    return ;	// serial port not configured so don't bother
-
-  gettimeofday(&tv, NULL);
-  if (( tv.tv_sec - write_time ) > 3600) {
-    // here once an hour
-    write_time = tv.tv_sec;
-    syslog(LOG_DEBUG, "Sending Time data" );
-    rv = Send_SystemTime(Serial_fd, write_time);
-    Check_Serial(rv);
-  }
-
-  rv = Send_PWMChanelData(Serial_fd );
-  Check_Serial(rv);
+  if ( Serial_fd >= 0 )
+	{
+		int rv = PWM_Send_ChanelData( Serial_fd );
+		Check_Serial(rv);
+	}
 }
 
 // *****************
@@ -170,21 +116,14 @@ void Setup_Timer(int start)
 {
   struct itimerval timer;
 
+	memset(&timer, 0, sizeof(struct itimerval));
+
   if ( start > 0 ) {
     // Configure the timer to expire after 25 msec...
-    timer.it_value.tv_sec = 0;
-    timer.it_value.tv_usec = TIMER_TICK;
     // ... and every 25 msec after that.
-    timer.it_interval.tv_sec = 0;
+    timer.it_value.tv_usec = TIMER_TICK;
     timer.it_interval.tv_usec = TIMER_TICK;
-  } else {
-    // stop the timer
-    timer.it_value.tv_sec = 0;
-    timer.it_value.tv_usec = 0;
-    timer.it_interval.tv_sec = 0;
-    timer.it_interval.tv_usec = 0;
   }
-
   // Start a virtual timer.
   setitimer (ITIMER_REAL, &timer, NULL);
 }
@@ -216,31 +155,27 @@ void Setup_SignalHandler(void)
 }
 
 // *****************
-char *args[] = {(char *) 0};
+static char *args[] = {(char *) 0};		// for when we fork the log process.
 // *****************
 int main(int argc, char *argv[])
 {
   int loop = 1;
   int rv;
-  int length;
   fd_set readfds;
   struct timeval select_time;
-  pid_t pid;
 
   openlog("PWM_Controller", LOG_PID , LOG_USER );
   syslog(LOG_NOTICE, "PWM_Controller Startup");
-#ifndef __DAEMONISE__
-  printf("PWM_Controller online\n");
-#endif
 
   // register shutdown function.
   atexit(System_Shutdown);
 
-  CL_Create_Shared_Memory();
   Read_Settings();
-//  Cmd_List = CmdParse_CreateFuncList();
-//	Build_CmdList(Cmd_List);
-#ifdef __DAEMONISE__
+	Fork_LogModule();
+  PWM_CreateSharedMemory();
+  Setup_SignalHandler();
+
+	#ifdef __DAEMONISE__
   rv = daemon( 0, 0 );
   if ( rv < 0 ) {
     syslog(LOG_EMERG, "Daemonise failed" );
@@ -249,17 +184,6 @@ int main(int argc, char *argv[])
 #else
   printf("System starting - Debug mode\n");
 #endif
-  pid = fork();
-  if ( pid == 0 ) { // child
-    syslog(LOG_ERR,"Forking Log module");
-    execv("/usr/sbin/PWM_Log", args);
-
-  } else if ( pid< 0 ) { // error
-    syslog(LOG_ERR,"Fork Error");
-    return -1;
-  }
-
-  Setup_SignalHandler();
 
   while ( loop > 0 ) {
     Connect_To_Port();
@@ -274,28 +198,56 @@ int main(int argc, char *argv[])
 
       if ( FD_ISSET(Serial_fd, &readfds) ) {
         // run receiver
-        length = strlen(SerialRead_Buf);
-        rv = read(Serial_fd, SerialRead_Buf + length, SERIAL_BUF_SIZE - length);
+				char readBuf[4096];
+
+        int length = strlen(readBuf);
+        rv = read(Serial_fd, readBuf + length, sizeof(readBuf) - length);
         Check_Serial(rv);
 
         if ( rv > 0 ) {
-          SerialRead_Buf[length + rv] = 0;
-#ifndef __DAEMONISE__
-          puts(SerialRead_Buf+length);
-#endif
+          readBuf[length + rv] = 0;
+
           while ( rv >= 0 ) {
-            rv = CmdParse_ProcessString(Cmd_Table, SerialRead_Buf, Serial_fd);
+            rv = CmdParse_ProcessString(Cmd_Table, readBuf, Serial_fd);
           }
         }
       }
     }
-#ifndef __DAEMONISE__
-    printf("Sleep\n");
-#endif
     sleep(60);
   }
-  exit(0);
   return 0;
+}
+
+// *****************
+static void Fork_LogModule(void)
+{
+  pid_t pid = fork();
+  if ( pid == 0 ) { // child
+    syslog(LOG_NOTICE,"Forking Log module");
+    execv("/usr/sbin/PWM_Log", args);
+
+  } else if ( pid < 0 ) { // error
+    syslog(LOG_ERR,"Failed t fork log module");
+  }
+}
+
+// *****************
+void Check_Serial(int rv)
+{
+  if ( rv < 0 ) {
+    Setup_Timer(0);
+    PWM_ClearSharedMemory();
+    Serial_fd = Serial_ClosePort(Serial_fd);
+    syslog(LOG_EMERG, "Serial coms lost, %d", errno);
+  }
+}
+
+// *****************
+static void System_Shutdown(void)
+{
+  PWM_ClearSharedMemory();
+  syslog(LOG_EMERG, "System shutting down");
+  closelog();
 }
 
 // *****************
