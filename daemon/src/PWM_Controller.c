@@ -3,19 +3,14 @@
 #define _XOPEN_SOURCE
 
 // *****************
-#include <fcntl.h>
-#include <signal.h>
-#include <syslog.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
+#include <syslog.h>
 #include <unistd.h>
-#include <sys/stat.h>
+#include <signal.h>
+#include <fcntl.h>
 #include <sys/time.h>
-#include <time.h>
 #include <errno.h>
 
 #include "parson.h"
@@ -25,20 +20,17 @@
 
 // *****************
 // Options
-#define __DAEMONISE__		1
+#define __DAEMONISE__    1
 
 // *****************
 const char PWM_Con_Settings_file[] = "/etc/PWM_Controller.conf";
 static int Serial_fd;
 
-#define SYSTEM_DELAY		 10000	// ms
-#define TIMER_TICK			100000  // ms
+#define SYSTEM_DELAY      10000   // us
 static const struct timeval system_time = {0,SYSTEM_DELAY};
-
 static char *PortName;
 
 // *****************
-static void Setup_Timer(int start);
 static void System_Shutdown(void);
 static void Check_Serial(int rv);
 static void Read_Settings(void);
@@ -88,7 +80,6 @@ void Connect_To_Port(void)
     return;
   syslog(LOG_NOTICE, "Com Port %s connected", PortName);
   PWM_SetConnected();
-  Setup_Timer(1);
 
   // send start up commands.
   // send temp update rate
@@ -98,34 +89,6 @@ void Connect_To_Port(void)
 
   // force unit to restart
   PWM_Send_Restart(Serial_fd);
-}
-
-// *****************
-void RunTimer(int sig)
-{ // receive signal, set up next tick.
-
-  if ( Serial_fd >= 0 )
-	{
-		int rv = PWM_Send_ChanelData( Serial_fd );
-		Check_Serial(rv);
-	}
-}
-
-// *****************
-void Setup_Timer(int start)
-{
-  struct itimerval timer;
-
-	memset(&timer, 0, sizeof(struct itimerval));
-
-  if ( start > 0 ) {
-    // Configure the timer to expire after 25 msec...
-    // ... and every 25 msec after that.
-    timer.it_value.tv_usec = TIMER_TICK;
-    timer.it_interval.tv_usec = TIMER_TICK;
-  }
-  // Start a virtual timer.
-  setitimer (ITIMER_REAL, &timer, NULL);
 }
 
 // *****************
@@ -146,12 +109,6 @@ void Setup_SignalHandler(void)
   sigaction (SIGTERM , &sig, NULL);
   sigaction (SIGABRT , &sig, NULL);
 
-  // Install timer_handler as the signal handler for SIGVTALRM.
-  memset (&sig, 0, sizeof (struct sigaction));
-  sig.sa_handler = &RunTimer;
-  sigaction (SIGALRM , &sig, NULL);
-  sigaction (SIGUSR1 , &sig, NULL);
-  sigaction (SIGUSR2 , &sig, NULL);
 }
 
 // *****************
@@ -171,11 +128,11 @@ int main(int argc, char *argv[])
   atexit(System_Shutdown);
 
   Read_Settings();
-	Fork_LogModule();
+  Fork_LogModule();
   PWM_CreateSharedMemory();
   Setup_SignalHandler();
 
-	#ifdef __DAEMONISE__
+#ifdef __DAEMONISE__
   rv = daemon( 0, 0 );
   if ( rv < 0 ) {
     syslog(LOG_EMERG, "Daemonise failed" );
@@ -188,6 +145,10 @@ int main(int argc, char *argv[])
   while ( loop > 0 ) {
     Connect_To_Port();
     while ( Serial_fd >= 0 ) {
+
+      rv = PWM_Send_ChanelData( Serial_fd );
+      Check_Serial(rv);
+
       FD_ZERO(&readfds);
       FD_SET(Serial_fd, &readfds);
       select_time = system_time;
@@ -198,9 +159,9 @@ int main(int argc, char *argv[])
 
       if ( FD_ISSET(Serial_fd, &readfds) ) {
         // run receiver
-				char readBuf[4096];
-
+        char readBuf[4096];
         int length = strlen(readBuf);
+	
         rv = read(Serial_fd, readBuf + length, sizeof(readBuf) - length);
         Check_Serial(rv);
 
@@ -235,7 +196,6 @@ static void Fork_LogModule(void)
 void Check_Serial(int rv)
 {
   if ( rv < 0 ) {
-    Setup_Timer(0);
     PWM_ClearSharedMemory();
     Serial_fd = Serial_ClosePort(Serial_fd);
     syslog(LOG_EMERG, "Serial coms lost, %d", errno);
