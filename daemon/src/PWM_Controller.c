@@ -246,7 +246,7 @@ void Check_Serial(int rv)
 static void System_Shutdown(void)
 {
   PWM_ClearSharedMemory();
-  syslog(LOG_EMERG, "System shutting down");
+  syslog(LOG_NOTICE, "System shutting down");
   closelog();
 }
 
