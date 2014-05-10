@@ -85,9 +85,9 @@ void Connect_To_Port(void)
   // send temp update rate
   // send current update rate
   // send voltage update rate
-  PWM_SetStartup(Serial_fd);
+	PWM_SetStartup(Serial_fd, 10);
 
-  // force unit to restart
+	// force unit to restart
   PWM_Send_Restart(Serial_fd);
 }
 

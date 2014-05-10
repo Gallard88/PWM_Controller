@@ -99,11 +99,14 @@ void PWM_SetDisconnected(void)
 }
 
 // *****************
-int PWM_SetStartup(int fd)
+static const char Get_Time[] = "time\r\n";
+
+// *****************
+int PWM_SetStartup(int fd, int update)
 {
   char cmd[100];
 
-  strcpy(cmd, "update: temp 10\r\nupdate: volt 10\r\nupdate: current 10\r\n");
+  sprintf(cmd, "update: temp %d\r\nupdate: volt %d\r\nupdate: current %d\r\n", update, update, update);
   return write (fd, cmd, strlen(cmd));
 }
 
@@ -219,11 +222,11 @@ static int Receive_Firmware(int fd, char *buf)
 
 // *****************
 const struct CmdFunc Cmd_Table[] = {
-  { "volt",        &Receive_Voltage  },
-  { "current",     &Receive_Current  },
-  { "temp",        &Receive_Temp     },
-  { "firmware",    &Receive_Firmware },
-  { NULL,           NULL }
+  { "volt",				&Receive_Voltage },
+  { "current",		&Receive_Current },
+  { "temp",				&Receive_Temp },
+  { "firmware",		&Receive_Firmware },
+  { NULL,					NULL }
 };
 
 // *****************
