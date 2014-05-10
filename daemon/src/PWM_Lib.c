@@ -138,13 +138,13 @@ float PWM_GetPWM(PWM_Con_t ptr, int ch)
 }
 
 // *****************
-static float Verify_PWM(float value)
+static int Verify_PWM(float value)
 {
   if ( value > 1.0 )
-    return 1.0;
+    return 100;
   if ( value < 0.0 )
-    return 0.0;
-  return value;
+    return 0;
+  return (int)(value * 100.0);
 }
 
 // *****************
@@ -160,35 +160,7 @@ void PWM_SetPWM(PWM_Con_t ptr, int ch, float duty)
   pthread_mutex_lock( &ptr->access );
   ptr->ch[ch].duty = Verify_PWM(duty);
   ptr->ch[ch].update = time(NULL);
-  ptr->data_ready = 1;
-  ptr->updated |= (1<<ch);
 
-  pthread_mutex_unlock( &ptr->access );
-  kill( ptr->pid, SIGUSR1);
-}
-
-// *****************
-void PWM_SetMultiplePWM(PWM_Con_t ptr, const struct PWM_Update *update, int num_chanels)
-{
-  time_t current_time= time(NULL);
-
-  if ( ptr == NULL )
-    return ;
-  if ( ptr->port_connected == 0 )
-    return;
-  pthread_mutex_lock( &ptr->access );
-  for ( int i = 0; i < num_chanels; i ++ ) {
-    int ch;
-
-    ch = update[i].ch;
-    if ( ch >= PWM_NUM_CHANELS )
-      continue;
-
-    ptr->ch[ch].duty = Verify_PWM(update[i].duty);
-    ptr->ch[ch].update = current_time;
-    ptr->updated |= (1<<ch);
-  }
-  ptr->data_ready = 1;
   pthread_mutex_unlock( &ptr->access );
   kill( ptr->pid, SIGUSR1);
 }
