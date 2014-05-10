@@ -131,20 +131,20 @@ float PWM_GetPWM(PWM_Con_t ptr, int ch)
     return 0;
 
   pthread_mutex_lock( &ptr->access );
-  value = ptr->ch[ch].duty;
+  value = (float)ptr->ch[ch].duty / 100.0;
   pthread_mutex_unlock( &ptr->access );
 
   return value;
 }
 
 // *****************
-static float Verify_PWM(float value)
+static int Verify_PWM(float value)
 {
   if ( value > 1.0 )
-    return 1.0;
+    return 100;
   if ( value < 0.0 )
-    return 0.0;
-  return value;
+    return 0;
+  return value * 100;
 }
 
 // *****************

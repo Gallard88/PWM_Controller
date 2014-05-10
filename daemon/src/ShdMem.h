@@ -21,7 +21,7 @@ extern "C" {
 #define PWM_NUM_CHANELS			16
 #define PWM_FIRMWARE_SIZE		128
   typedef struct {
-    float duty;
+    int duty;
     time_t update;
   } PWM_Ch;
 
