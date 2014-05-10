@@ -21,7 +21,7 @@ extern "C" {
 #define PWM_NUM_CHANELS			16
 #define PWM_FIRMWARE_SIZE		128
   typedef struct {
-    int duty;
+    float duty;
     time_t update;
   } PWM_Ch;
 
@@ -30,7 +30,9 @@ extern "C" {
     pid_t pid;
     int ver_major;
     int ver_minor;
-    int port_connected;
+    unsigned data_ready:1;
+    unsigned port_connected:1;
+    int updated;
     float voltage;
     float current;
     float temperature;

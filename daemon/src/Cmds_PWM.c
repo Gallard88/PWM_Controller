@@ -75,6 +75,7 @@ void PWM_CreateSharedMemory( void )
 // *****************
 void PWM_ClearSharedMemory(void)
 {
+  PWM_ptr->data_ready = 0;
   PWM_ptr->port_connected = 0;
   PWM_ptr->voltage = 0;
   PWM_ptr->current = 0;
@@ -119,12 +120,14 @@ int PWM_Send_Restart(int fd)
 }
 
 // *****************
-static int Check_PWM(int duty)
+static float Check_PWM(float duty)
 {
-  if ( duty > 100 )
-    return 100;
-  if ( duty < 0 )
-    return 0;
+  if ( duty != duty )
+    return 0.0;  // NAN check
+  if ( duty > 1.0 )
+    return 1.0;
+  if ( duty < 0.0 )
+    return 0.0;
   return duty;
 }
 
@@ -132,23 +135,18 @@ static int Check_PWM(int duty)
 int PWM_Send_ChanelData(int fd)
 {
   int i;
-  int newDuty;
+  float newDuty;
   char cmd[32], msg[32*PWM_NUM_CHANELS];
-  time_t diff, current = time(NULL);
 
   msg[0] = 0;
   pthread_mutex_lock( &PWM_ptr->access );
   for ( i = 0; i < PWM_NUM_CHANELS; i ++ ) {
-
-    diff = current - PWM_ptr->ch[i].update;
-    
-    if ( diff < 5 ) {
+    if ( PWM_ptr->updated & (1<<i) ) {
       newDuty = Check_PWM(PWM_ptr->ch[i].duty);
-    } else {
-      newDuty = 0;
+      sprintf(cmd, "pwm: %2d %3d\r\n", i, (int)(newDuty * 100.0));
+      strcat(msg, cmd);
+      PWM_ptr->updated &= ~(1<<i);
     }
-    sprintf(cmd, "pwm: %2d %3d\r\n", i, newDuty );
-    strcat(msg, cmd);
   }
   pthread_mutex_unlock( &PWM_ptr->access );
   return write(fd, msg, strlen(msg) );
