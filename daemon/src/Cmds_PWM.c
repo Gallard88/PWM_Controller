@@ -222,11 +222,11 @@ static int Receive_Firmware(int fd, char *buf)
 
 // *****************
 const struct CmdFunc Cmd_Table[] = {
-  { "volt",				&Receive_Voltage },
-  { "current",		&Receive_Current },
-  { "temp",				&Receive_Temp },
-  { "firmware",		&Receive_Firmware },
-  { NULL,					NULL }
+  { "volt",	&Receive_Voltage },
+  { "current",	&Receive_Current },
+  { "temp",	&Receive_Temp },
+  { "firmware",	&Receive_Firmware },
+  { NULL,	NULL }
 };
 
 // *****************
