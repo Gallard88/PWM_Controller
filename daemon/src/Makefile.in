@@ -17,7 +17,6 @@
 
 
 
-
 VPATH = @srcdir@
 am__make_dryrun = \
   { \
@@ -93,8 +92,7 @@ am__uninstall_files_from_dir = { \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
 am__installdirs = "$(DESTDIR)$(libdir)" \
-	"$(DESTDIR)$(PWM_Controllerdir)" "$(DESTDIR)$(PWM_Filesdir)" \
-	"$(DESTDIR)$(includedir)"
+	"$(DESTDIR)$(PWM_Controllerdir)" "$(DESTDIR)$(includedir)"
 LIBRARIES = $(lib_LIBRARIES)
 AR = ar
 ARFLAGS = cru
@@ -104,7 +102,7 @@ am_libPWMControl_a_OBJECTS = PWM_Lib.$(OBJEXT)
 libPWMControl_a_OBJECTS = $(am_libPWMControl_a_OBJECTS)
 PROGRAMS = $(PWM_Controller_PROGRAMS)
 am_PWM_Controller_OBJECTS = CmdParse.$(OBJEXT) Cmds_PWM.$(OBJEXT) \
-	parson.$(OBJEXT) Serial.$(OBJEXT) PWM_Controller.$(OBJEXT)
+	Serial.$(OBJEXT) PWM_Controller.$(OBJEXT)
 PWM_Controller_OBJECTS = $(am_PWM_Controller_OBJECTS)
 PWM_Controller_LDADD = $(LDADD)
 am_PWM_Log_OBJECTS = PWM_Log.$(OBJEXT) PWM_Lib.$(OBJEXT)
@@ -130,7 +128,6 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-DATA = $(PWM_Files_DATA)
 HEADERS = $(include_HEADERS)
 ETAGS = etags
 CTAGS = ctags
@@ -234,10 +231,6 @@ libPWMControl_a_SOURCES = \
 
 include_HEADERS = PWM_Controller.h
 
-#include_HEADERS= PWM_Controller.h
-PWM_Filesdir = /etc
-PWM_Files_DATA = PWM_Controller.conf
-
 # Install that start up script.
 PWM_INITdir = /etc/init.d/
 PWM_INIT_Data = PWM_Controller.sh
@@ -250,8 +243,6 @@ PWM_Controller_SOURCES = \
 	CmdParse.h \
 	Cmds_PWM.c \
 	Cmds_PWM.h \
-	parson.c \
-	parson.h \
 	Serial.c \
 	Serial.h \
 	PWM_Controller.c \
@@ -399,7 +390,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PWM_Log.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PWM_Test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Serial.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parson.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -414,27 +404,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
-install-PWM_FilesDATA: $(PWM_Files_DATA)
-	@$(NORMAL_INSTALL)
-	@list='$(PWM_Files_DATA)'; test -n "$(PWM_Filesdir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(PWM_Filesdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(PWM_Filesdir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(PWM_Filesdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(PWM_Filesdir)" || exit $$?; \
-	done
-
-uninstall-PWM_FilesDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(PWM_Files_DATA)'; test -n "$(PWM_Filesdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(PWM_Filesdir)'; $(am__uninstall_files_from_dir)
 install-includeHEADERS: $(include_HEADERS)
 	@$(NORMAL_INSTALL)
 	@list='$(include_HEADERS)'; test -n "$(includedir)" || list=; \
@@ -541,9 +510,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LIBRARIES) $(PROGRAMS) $(DATA) $(HEADERS)
+all-am: Makefile $(LIBRARIES) $(PROGRAMS) $(HEADERS)
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(PWM_Controllerdir)" "$(DESTDIR)$(PWM_Filesdir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(PWM_Controllerdir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -599,8 +568,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-PWM_ControllerPROGRAMS install-PWM_FilesDATA \
-	install-includeHEADERS
+install-data-am: install-PWM_ControllerPROGRAMS install-includeHEADERS
 
 install-dvi: install-dvi-am
 
@@ -645,7 +613,7 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-PWM_ControllerPROGRAMS uninstall-PWM_FilesDATA \
+uninstall-am: uninstall-PWM_ControllerPROGRAMS \
 	uninstall-includeHEADERS uninstall-libLIBRARIES
 
 .MAKE: install-am install-strip
@@ -654,17 +622,17 @@ uninstall-am: uninstall-PWM_ControllerPROGRAMS uninstall-PWM_FilesDATA \
 	clean-PWM_ControllerPROGRAMS clean-generic clean-libLIBRARIES \
 	ctags distclean distclean-compile distclean-generic \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-PWM_ControllerPROGRAMS install-PWM_FilesDATA \
-	install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-includeHEADERS install-info \
-	install-info-am install-libLIBRARIES install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
+	install install-PWM_ControllerPROGRAMS install-am install-data \
+	install-data-am install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am \
+	install-includeHEADERS install-info install-info-am \
+	install-libLIBRARIES install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic pdf pdf-am ps ps-am tags uninstall \
-	uninstall-PWM_ControllerPROGRAMS uninstall-PWM_FilesDATA \
-	uninstall-am uninstall-includeHEADERS uninstall-libLIBRARIES
+	uninstall-PWM_ControllerPROGRAMS uninstall-am \
+	uninstall-includeHEADERS uninstall-libLIBRARIES
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

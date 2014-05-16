@@ -14,10 +14,6 @@ libPWMControl_a_SOURCES = \
 
 include_HEADERS = PWM_Controller.h
 
-#include_HEADERS= PWM_Controller.h
-PWM_Filesdir= /etc
-PWM_Files_DATA= PWM_Controller.conf
-
 # Install that start up script.
 PWM_INITdir = /etc/init.d/
 PWM_INIT_Data=PWM_Controller.sh
@@ -31,8 +27,6 @@ PWM_Controller_SOURCES= \
 	CmdParse.h \
 	Cmds_PWM.c \
 	Cmds_PWM.h \
-	parson.c \
-	parson.h \
 	Serial.c \
 	Serial.h \
 	PWM_Controller.c \

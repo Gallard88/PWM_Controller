@@ -4,20 +4,21 @@
 # Required-Stop:     $syslog
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Example TFTP_Server
-# Description:       Start/Stops TFTP Server
+# Short-Description: Example PWM Controller /dev/ttyS1
+# Description:       Start/Stops PWM Controller daemon
 
 start() {
-  # Start TFTP Server
-  /usr/sbin/PWM_Controller
+  # Start PWM Controller daemon
+  /usr/sbin/PWM_Controller /dev/ttyUSB0
 }
 
 stop() {
-  # Stop TFTP_Server
+  # Stop PWM Controller daemon
   killall PWM_Controller
+  killall PWM_Log
 }
 
-case "$1" in 
+case "$1" in
     start)
         start
         ;;
