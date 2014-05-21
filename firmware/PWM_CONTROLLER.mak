@@ -5,10 +5,8 @@ ASFLAGS = $(CFLAGS)
 LFLAGS =  -g -e:0x40000 -xcall -ucrtatmega.o -bfunc_lit:0xe4.0x40000 -dram_end:0x21ff -bdata:0x200.0x21ff -dhwstk_size:30 -beeprom:0.4096 -fihx_coff -S2
 FILES = adc.o CmdProcessor.o eeprom.o pwm.o PWM_Cmds.o timer.o uart1.o uart3.o main.o 
 
-PWM_CONTROLLER:	PWM_CONTROLLER_pre $(FILES)
+PWM_CONTROLLER:	$(FILES)
 	$(CC) -o PWM_CONTROLLER $(LFLAGS) @PWM_CONTROLLER.lk   -llpatm256 -lcatm256
-PWM_CONTROLLER_pre:
-	touch main.c
 adc.o: C:\iccv7avr\include\iom2560v.h C:\iccv7avr\include\_iom640to2561v.h .\adc.h
 adc.o:	adc.c
 	$(CC) -c $(CFLAGS) adc.c

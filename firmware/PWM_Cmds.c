@@ -24,58 +24,6 @@
 #include "conf_eeprom.h"
 
 //*****************************************************************************
-//*****************************************************************************
-int Ext_Current;
-
-unsigned int Current_Update_Timer;
-
-#define CURR_AVG_BUFFER_SIZE	4
-int Current_Avg_Buffer[CURR_AVG_BUFFER_SIZE];
-
-ADC_Avg_Filter Curr_AVG =
-{
-  15,	// ch
-  8, 	// scale_div
-  136, 	// scale_mult
-  Current_Avg_Buffer, // *buffer
-  0, // buf_ofs
-  CURR_AVG_BUFFER_SIZE, // buf_size
-  517, // pre offset
-  0, // post offset
-  0 // average
-};
-/**
-517 = 0A.
-522 = 0.266A
-528 = 0.577
-538 = 1.1
-
-scale fact.
-13m, 256d.
-pre offset = 517.
-*/
-
-//*****************************************************************************
-int Time(char *buf)
-{
-  char resp[50];
-
-  if ( buf != NULL )
-  { // read
-    csprintf(resp, "Time set\r\n");
-    U1_TxPuts(resp);
-    return 0;
-  }
-  else
-  {
-    // hh:mm:ss dd-mm-yyyy
-    csprintf(resp, "Time: 13:41:00 27-04-2013\r\n");
-    U1_TxPuts(resp);
-    return 0;
-  }
-}
-
-//*****************************************************************************
 int Update_Pwm(char *buf)
 {
   char cmd[50];
@@ -180,6 +128,8 @@ int Update_Rate(char *buf)
 }
 
 //*****************************************************************************
+int Ext_Current;
+//*****************************************************************************
 int Expansion_Current(char *buf)
 {
   int value;
@@ -225,7 +175,6 @@ int Restart(char *buf)
 //*****************************************************************************
 const struct cmdtable USB_CmdTable[] =
 { // Put strings with more chars to check near top of the list
-  "time",				&Time,
   "pwm",				&Update_Pwm,
   "temp",				&System_Temp,
   "current",		&System_Current,
@@ -242,26 +191,25 @@ const struct cmdtable Ext_CmdTable[] =
 };
 
 //*****************************************************************************
+unsigned int CURRENT_Update_Timer;
+
+//*****************************************************************************
 void Run_Current_Sensor(void)
 {
-  int time, value;
+  int time;
+  long raw, value;
   char cmd[50];
 
-  // run timers, see if we need to send any commands via USB.
-  ADC_RunAvgFilter( &Curr_AVG);
   time = EEpromRead_2_default(EE_CURRENT_UPDATE, 5);
-  if (( time > 0 ) && ( Current_Update_Timer > time ))
+  if (( time > 0 ) && ( CURRENT_Update_Timer > time ))
   {
-    Current_Update_Timer = 0;
-    if ( Curr_AVG.average < 0 )
-      value = 0;
-    else
-      value = Curr_AVG.average;
-    value += Ext_Current;
+    CURRENT_Update_Timer = 0;
+    raw = ((long)ADC_Read(15) * 124) >> 8;				 
+    value = raw - 512;		  // normalise...
     csprintf(cmd,"current: %d.%d\r\n", value /10, value %10);
     U1_TxPuts(cmd);
   }
-  Current_Update_Timer++;
+  CURRENT_Update_Timer++;
 }
 
 //*****************************************************************************
@@ -338,8 +286,6 @@ void PWM_Cmds_Run(void)
 //*****************************************************************************
 void PWM_Cmds_Init(void)
 {
-  // Current Sensor
-  ADC_LoadAvgFilter( &Curr_AVG);
 }
 
 //*****************************************************************************

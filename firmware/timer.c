@@ -17,7 +17,7 @@ const int Timer_1s_Count = 1000;
 //	***************************************************************************
 /*
 	Crystal frequency of 14.7456MHz
-	Want heart Beat = 100 Hz ( 10 ms )
+	Want heart Beat = 1000 Hz ( 1 ms )
 
 	Prescale, 64
 	Count to 230.

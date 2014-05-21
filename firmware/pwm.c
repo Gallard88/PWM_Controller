@@ -1,7 +1,4 @@
 
-
-
-
 // *****************************************************************************
 #include <iom2560v.h>
 #include "pwm.h"
@@ -133,6 +130,7 @@ static void PWM_Enable_Port(int ch)
 /******************************************/
 static void PWM_Disable_Port(int ch)
 {
+// we turn off the output ping as well so as not to glitch the output
   switch ( ch )
   {
   case 0:
