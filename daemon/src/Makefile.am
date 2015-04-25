@@ -4,7 +4,7 @@ AM_CFLAGS = --pedantic -Wall  -std=c99
 # this lists the binaries to produce, the (non-PHONY, binary) targets in
 # the previous manual Makefile
 PWM_Controllerdir=/usr/sbin/
-PWM_Controller_PROGRAMS= PWM_Controller PWM_Test PWM_Log
+PWM_Controller_PROGRAMS= PWM_Controller PWM_Test
 
 lib_LIBRARIES = libPWMControl.a
 libPWMControl_a_SOURCES = \
@@ -34,11 +34,6 @@ PWM_Controller_SOURCES= \
 
 PWM_Test_SOURCES= \
         PWM_Test.c \
-        PWM_Lib.c \
-        PWM_Controller.h
-
-PWM_Log_SOURCES= \
-        PWM_Log.c \
         PWM_Lib.c \
         PWM_Controller.h
 

@@ -32,7 +32,6 @@ static char *PortName;
 // *****************
 static void System_Shutdown(void);
 static void Check_Serial(int rv);
-static void Fork_LogModule(void);
 
 // *****************
 void Connect_To_Port(void)
@@ -74,8 +73,6 @@ void Setup_SignalHandler(void)
 }
 
 // *****************
-static char *args[] = {(char *) 0};		// for when we fork the log process.
-// *****************
 int main(int argc, char *argv[])
 {
   int loop = 1;
@@ -97,7 +94,6 @@ int main(int argc, char *argv[])
 
   PWM_CreateSharedMemory();
   Setup_SignalHandler();
-  Fork_LogModule();
 
 #ifdef __DAEMONISE__
   rv = daemon( 0, 0 );
@@ -144,19 +140,6 @@ int main(int argc, char *argv[])
     sleep(60);
   }
   return 0;
-}
-
-// *****************
-static void Fork_LogModule(void)
-{
-  pid_t pid = fork();
-  if ( pid == 0 ) { // child
-    syslog(LOG_NOTICE,"Forking Log module");
-    execv("/usr/sbin/PWM_Log", args);
-
-  } else if ( pid < 0 ) { // error
-    syslog(LOG_ERR,"Failed t fork log module");
-  }
 }
 
 // *****************

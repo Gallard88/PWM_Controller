@@ -51,8 +51,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-PWM_Controller_PROGRAMS = PWM_Controller$(EXEEXT) PWM_Test$(EXEEXT) \
-	PWM_Log$(EXEEXT)
+PWM_Controller_PROGRAMS = PWM_Controller$(EXEEXT) PWM_Test$(EXEEXT)
 subdir = src
 DIST_COMMON = $(include_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
@@ -105,9 +104,6 @@ am_PWM_Controller_OBJECTS = CmdParse.$(OBJEXT) Cmds_PWM.$(OBJEXT) \
 	Serial.$(OBJEXT) PWM_Controller.$(OBJEXT)
 PWM_Controller_OBJECTS = $(am_PWM_Controller_OBJECTS)
 PWM_Controller_LDADD = $(LDADD)
-am_PWM_Log_OBJECTS = PWM_Log.$(OBJEXT) PWM_Lib.$(OBJEXT)
-PWM_Log_OBJECTS = $(am_PWM_Log_OBJECTS)
-PWM_Log_LDADD = $(LDADD)
 am_PWM_Test_OBJECTS = PWM_Test.$(OBJEXT) PWM_Lib.$(OBJEXT)
 PWM_Test_OBJECTS = $(am_PWM_Test_OBJECTS)
 PWM_Test_LDADD = $(LDADD)
@@ -120,9 +116,9 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(libPWMControl_a_SOURCES) $(PWM_Controller_SOURCES) \
-	$(PWM_Log_SOURCES) $(PWM_Test_SOURCES)
+	$(PWM_Test_SOURCES)
 DIST_SOURCES = $(libPWMControl_a_SOURCES) $(PWM_Controller_SOURCES) \
-	$(PWM_Log_SOURCES) $(PWM_Test_SOURCES)
+	$(PWM_Test_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -253,11 +249,6 @@ PWM_Test_SOURCES = \
         PWM_Lib.c \
         PWM_Controller.h
 
-PWM_Log_SOURCES = \
-        PWM_Log.c \
-        PWM_Lib.c \
-        PWM_Controller.h
-
 all: all-am
 
 .SUFFIXES:
@@ -370,9 +361,6 @@ clean-PWM_ControllerPROGRAMS:
 PWM_Controller$(EXEEXT): $(PWM_Controller_OBJECTS) $(PWM_Controller_DEPENDENCIES) $(EXTRA_PWM_Controller_DEPENDENCIES) 
 	@rm -f PWM_Controller$(EXEEXT)
 	$(LINK) $(PWM_Controller_OBJECTS) $(PWM_Controller_LDADD) $(LIBS)
-PWM_Log$(EXEEXT): $(PWM_Log_OBJECTS) $(PWM_Log_DEPENDENCIES) $(EXTRA_PWM_Log_DEPENDENCIES) 
-	@rm -f PWM_Log$(EXEEXT)
-	$(LINK) $(PWM_Log_OBJECTS) $(PWM_Log_LDADD) $(LIBS)
 PWM_Test$(EXEEXT): $(PWM_Test_OBJECTS) $(PWM_Test_DEPENDENCIES) $(EXTRA_PWM_Test_DEPENDENCIES) 
 	@rm -f PWM_Test$(EXEEXT)
 	$(LINK) $(PWM_Test_OBJECTS) $(PWM_Test_LDADD) $(LIBS)
@@ -387,7 +375,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Cmds_PWM.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PWM_Controller.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PWM_Lib.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PWM_Log.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PWM_Test.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Serial.Po@am__quote@
 
