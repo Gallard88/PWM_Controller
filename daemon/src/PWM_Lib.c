@@ -107,6 +107,26 @@ float PWM_GetCurrent(PWM_Con_t ptr)
 }
 
 // *****************
+int PWM_GetMeasurements(PWM_Con_t ptr, float *volt, float *temp, float *current)
+{
+  if ( ptr == NULL )
+    return -1;
+  pthread_mutex_lock( &ptr->access );
+  if ( volt != NULL ) {
+    *volt = ptr->voltage;
+  }
+  if ( temp != NULL ) {
+    *temp = ptr->temperature;
+  }
+  if ( current != NULL ) {
+    *current = ptr->current;
+  }
+  pthread_mutex_unlock( &ptr->access );
+  return 0;
+}
+
+
+// *****************
 float PWM_GetVoltage(PWM_Con_t ptr)
 {
   float value;

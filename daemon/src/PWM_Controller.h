@@ -31,6 +31,8 @@ extern "C" {
   float PWM_GetPWM(PWM_Con_t ptr, int ch);
 
   // *****************
+  int PWM_GetMeasurements(PWM_Con_t ptr, float *volt, float *temp, float *current);
+  // *****************
   struct PWM_Update {
     int ch;
     float duty;
